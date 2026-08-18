@@ -1,0 +1,53 @@
+plugins {
+    id "com.android.application"
+    id "kotlin-android"
+    id "dev.flutter.flutter-gradle-plugin"
+}
+
+android {
+    namespace = "com.maozi.phone_clear"
+    compileSdk = 34
+    ndkVersion = flutter.ndkVersion
+
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_1_7
+        targetCompatibility = JavaVersion.VERSION_1_7
+    }
+
+    kotlinOptions {
+        jvmTarget = JavaVersion.VERSION_1_7
+    }
+
+    defaultConfig {
+        applicationId = "com.maozi.phone_clear"
+        minSdk = 21
+        targetSdk = 34
+        versionCode = flutter.versionCode
+        versionName = flutter.versionName
+    }
+
+    buildTypes {
+        release {
+            signingConfig = signingConfigs.debug
+            minifyEnabled = true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    flavorDimensions "default"
+    productFlavors {
+        dev {
+            dimension "default"
+            applicationIdSuffix = ".dev"
+            resValue "string", "app_name", "猫子清理Dev"
+        }
+        prod {
+            dimension "default"
+            resValue "string", "app_name", "猫子手机清理"
+        }
+    }
+}
+
+flutter {
+    source = "../.."
+}
