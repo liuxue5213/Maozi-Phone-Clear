@@ -18,25 +18,110 @@ class SelectScreen extends StatelessWidget {
         // 顶部汇总信息栏
         _buildSummaryHeader(provider),
 
-        // 分类列表
+        // 分类列表或空状态
         Expanded(
-          child: ListView.builder(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            itemCount: provider.categories.length,
-            itemBuilder: (context, index) {
-              return _CategoryCard(
-                category: provider.categories[index],
-                onToggleCategory: () =>
-                    provider.toggleCategory(provider.categories[index]),
-                onToggleItem: provider.toggleItem,
-              );
-            },
-          ),
+          child: provider.categories.isEmpty
+              ? _buildEmptyState(provider)
+              : ListView.builder(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  itemCount: provider.categories.length,
+                  itemBuilder: (context, index) {
+                    return _CategoryCard(
+                      category: provider.categories[index],
+                      onToggleCategory: () =>
+                          provider.toggleCategory(provider.categories[index]),
+                      onToggleItem: provider.toggleItem,
+                    );
+                  },
+                ),
         ),
 
         // 底部操作栏
-        _buildBottomBar(provider, context),
+        if (provider.categories.isNotEmpty) _buildBottomBar(provider, context),
       ],
+    );
+  }
+
+  /// 空状态 - 显示扫描详情
+  Widget _buildEmptyState(CleanProvider provider) {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(24),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Icon(
+            Icons.search_off_outlined,
+            size: 64,
+            color: Color(0xFFBDBDBD),
+          ),
+          const SizedBox(height: 16),
+          const Text(
+            '未发现垃圾文件',
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+          ),
+          const SizedBox(height: 8),
+          
+          // 显示扫描详情
+          if (provider.scanErrors.isNotEmpty) ...[
+            const SizedBox(height: 16),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.orange[50],
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: Colors.orange[200]!),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Row(
+                    children: [
+                      Icon(Icons.warning_amber_outlined, color: Colors.orange, size: 20),
+                      SizedBox(width: 8),
+                      Text('部分目录无法访问：', style: TextStyle(fontWeight: FontWeight.w600, color: Colors.orange)),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  ...provider.scanErrors.map((e) => Padding(
+                    padding: const EdgeInsets.only(left: 28, bottom: 4),
+                    child: Text('• $e', style: TextStyle(fontSize: 12, color: Colors.orange[800])),
+                  )),
+                ],
+              ),
+            ),
+          ],
+          
+          // 显示已扫描的目录
+          if (provider.scannedDirs.isNotEmpty) ...[
+            const SizedBox(height: 12),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.grey[100],
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text('已扫描目录：', style: TextStyle(fontWeight: FontWeight.w600, color: Colors.grey)),
+                  const SizedBox(height: 8),
+                  ...provider.scannedDirs.map((d) => Padding(
+                    padding: const EdgeInsets.only(left: 8, bottom: 4),
+                    child: Text('✓ $d', style: TextStyle(fontSize: 11, color: Colors.grey[600])),
+                  )),
+                ],
+              ),
+            ),
+          ],
+          
+          const SizedBox(height: 16),
+          const Text(
+            '请确保已授予"允许访问所有文件"权限',
+            style: TextStyle(fontSize: 13, color: Colors.grey),
+            textAlign: TextAlign.center,
+          ),
+        ],
+      ),
     );
   }
 

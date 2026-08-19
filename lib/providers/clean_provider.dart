@@ -22,6 +22,11 @@ class CleanProvider extends ChangeNotifier {
   int _totalCleanedBytes = 0;
   double _progress = 0.0;
   String _statusMessage = '';
+  
+  // 扫描详情
+  List<String> _scanErrors = [];
+  List<String> _scannedDirs = [];
+  int _totalFilesScanned = 0;
 
   // Getters
   AppState get state => _state;
@@ -30,6 +35,9 @@ class CleanProvider extends ChangeNotifier {
   int get totalCleanedBytes => _totalCleanedBytes;
   double get progress => _progress;
   String get statusMessage => _statusMessage;
+  List<String> get scanErrors => _scanErrors;
+  List<String> get scannedDirs => _scannedDirs;
+  int get totalFilesScanned => _totalFilesScanned;
 
   /// 获取所有待勾选项
   List<JunkItem> get allItems {
@@ -61,6 +69,9 @@ class CleanProvider extends ChangeNotifier {
     _statusMessage = '正在扫描垃圾文件...';
     _categories = [];
     _totalScannedBytes = 0;
+    _scanErrors = [];
+    _scannedDirs = [];
+    _totalFilesScanned = 0;
     notifyListeners();
 
     // 模拟扫描进度
@@ -72,12 +83,25 @@ class CleanProvider extends ChangeNotifier {
     }
 
     // 执行扫描
-    _categories = await _scanner.scanAll();
-    _totalScannedBytes =
-        _categories.fold(0, (sum, cat) => sum + cat.totalSizeBytes);
+    final result = await _scanner.scanAll();
+    _categories = result.categories;
+    _totalScannedBytes = result.totalBytes;
+    _scanErrors = result.errors;
+    _scannedDirs = result.scannedDirs;
+    _totalFilesScanned = result.totalFilesScanned;
 
     _state = AppState.selecting;
-    _statusMessage = '扫描完成，发现 ${FormatUtils.formatBytes(_totalScannedBytes)} 垃圾';
+    
+    // 显示详细扫描结果
+    if (_categories.isEmpty) {
+      if (_scanErrors.isNotEmpty) {
+        _statusMessage = '扫描完成：无权限访问目录';
+      } else {
+        _statusMessage = '扫描完成：未发现垃圾文件';
+      }
+    } else {
+      _statusMessage = '扫描完成，发现 ${FormatUtils.formatBytes(_totalScannedBytes)} 垃圾';
+    }
     notifyListeners();
   }
 
@@ -147,6 +171,9 @@ class CleanProvider extends ChangeNotifier {
     _totalCleanedBytes = 0;
     _progress = 0.0;
     _statusMessage = '';
+    _scanErrors = [];
+    _scannedDirs = [];
+    _totalFilesScanned = 0;
     notifyListeners();
   }
 
