@@ -223,7 +223,7 @@ class RecycleBinService {
   }
 
   String _getFileType(String fileName) {
-    final ext = fileName.toLowerCase().split('.).last;
+    final ext = fileName.toLowerCase().split('.').last;
     if (['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp'].contains(ext)) return 'image';
     if (['mp4', 'avi', 'mkv', 'mov', 'wmv', 'flv', 'webm'].contains(ext)) return 'video';
     if (['mp3', 'wav', 'flac', 'aac', 'ogg', 'wma'].contains(ext)) return 'audio';

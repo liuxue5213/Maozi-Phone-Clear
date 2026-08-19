@@ -17,7 +17,6 @@ class _StorageAnalysisScreenState extends State<StorageAnalysisScreen> {
   // 真实存储数据
   List<_StorageCategory> _categories = [];
   bool _isLoading = true;
-  int _totalBytes = 0;
   int _usedBytes = 0;
 
   @override
@@ -31,7 +30,6 @@ class _StorageAnalysisScreenState extends State<StorageAnalysisScreen> {
 
     try {
       // 获取设备存储信息
-      final stat = await Directory('/storage/emulated/0').stat();
       final totalBytes = await _getTotalStorage();
       final freeBytes = await _getFreeStorage();
       final usedBytes = totalBytes - freeBytes;
@@ -42,7 +40,6 @@ class _StorageAnalysisScreenState extends State<StorageAnalysisScreen> {
       if (!mounted) return;
       setState(() {
         _categories = categories;
-        _totalBytes = totalBytes;
         _usedBytes = usedBytes;
         _isLoading = false;
       });
@@ -51,7 +48,6 @@ class _StorageAnalysisScreenState extends State<StorageAnalysisScreen> {
       if (!mounted) return;
       setState(() {
         _categories = _getDefaultCategories();
-        _totalBytes = 64 * 1024 * 1024 * 1024; // 64GB
         _usedBytes = 32 * 1024 * 1024 * 1024; // 32GB
         _isLoading = false;
       });
@@ -147,8 +143,8 @@ class _StorageAnalysisScreenState extends State<StorageAnalysisScreen> {
       );
     }
 
-    final total = _categories.fold<double>(0, (sum, c) => sum + c.sizeMB);
-    final used = _usedBytes / (1024 * 1024); // 转换为 MB
+    final totalMB = _categories.fold<double>(0, (sum, c) => sum + c.sizeMB);
+    final usedMB = _usedBytes / (1024 * 1024); // 转换为 MB
 
     return Scaffold(
       backgroundColor: const Color(0xFFF5F7FA),
@@ -172,7 +168,7 @@ class _StorageAnalysisScreenState extends State<StorageAnalysisScreen> {
         child: Column(
           children: [
             // 总存储信息卡片
-            _buildTotalCard(used, total),
+            _buildTotalCard(usedMB, totalMB),
             const SizedBox(height: 20),
 
             // 饼图卡片
@@ -217,7 +213,7 @@ class _StorageAnalysisScreenState extends State<StorageAnalysisScreen> {
           ClipRRect(
             borderRadius: BorderRadius.circular(8),
             child: LinearProgressIndicator(
-              value: totalMB > 0 ? usedMB / totalMB : 0,
+              value: totalMB > 0 ? (usedMB / totalMB).clamp(0.0, 1.0) : 0,
               minHeight: 12,
               backgroundColor: Colors.white24,
               valueColor: const AlwaysStoppedAnimation<Color>(Colors.white),

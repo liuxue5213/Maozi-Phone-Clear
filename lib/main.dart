@@ -18,6 +18,7 @@ import 'screens/phone_boost_screen.dart';
 import 'screens/cpu_cooler_screen.dart';
 import 'screens/antivirus_screen.dart';
 import 'screens/database_optimize_screen.dart';
+import 'screens/storage_analysis_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -281,6 +282,17 @@ class AllFeaturesTab extends StatelessWidget {
         children: [
           // 文件管理
           _buildSectionHeader('📁 文件管理'),
+          _buildFeatureCard(
+            context,
+            icon: Icons.pie_chart_rounded,
+            title: '存储分析',
+            subtitle: '可视化查看存储空间占用分布',
+            color: const Color(0xFF2196F3),
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const StorageAnalysisScreen()),
+            ),
+          ),
           _buildFeatureCard(
             context,
             icon: Icons.insert_drive_file_rounded,
