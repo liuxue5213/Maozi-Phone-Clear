@@ -1,46 +1,79 @@
 import 'dart:io';
+import 'package:photo_manager/photo_manager.dart';
 import '../models/image_file.dart';
 
 class ImageScanner {
+  /// 扫描图片 - 使用 MediaStore API (photo_manager)
   Future<Map<ImageCategory, List<ImageFileItem>>> scanImages() async {
     final Map<ImageCategory, List<ImageFileItem>> result = {};
-    final dirs = [
-      '/storage/emulated/0/Pictures/Screenshots',
-      '/storage/emulated/0/DCIM/Screenshots',
-      '/storage/emulated/0/DCIM/Camera',
-      '/storage/emulated/0/Pictures',
-      '/storage/emulated/0/DCIM',
-    ];
-    final imgExts = ['.jpg', '.jpeg', '.png', '.webp', '.heic'];
-    
-    for (final dirPath in dirs) {
-      final dir = Directory(dirPath);
-      if (!await dir.exists()) continue;
-      try {
-        await for (final entity in dir.list(followLinks: false)) {
-          if (entity is File) {
-            try {
-              final ext = entity.path.toLowerCase().split('.').last;
-              if (imgExts.contains('.$ext')) {
-                final stat = await entity.stat();
-                final cat = dirPath.contains('Screenshot') ? ImageCategory.screenshot : ImageCategory.similar;
-                result.putIfAbsent(cat, () => []).add(ImageFileItem(
-                  path: entity.path, name: entity.path.split('/').last, sizeBytes: stat.size,
-                  createdDate: stat.modified, width: 1920, height: 1080, category: cat,
-                ));
-              }
-            } catch (e) {}
-          }
-        }
-      } catch (e) {}
+
+    // 请求权限
+    final ps = await PhotoManager.requestPermissionExtend();
+    if (!ps.isAuth && !ps.hasAccess) {
+      return result;
     }
-    
+
+    // 使用 MediaStore 查询图片
+    final assetPaths = await PhotoManager.getAssetPathList(
+      type: RequestType.image,
+      onlyAll: false,
+    );
+
+    for (final path in assetPaths) {
+      final assets = await path.getAssetListPaged(page: 0, size: 1000);
+      
+      for (final asset in assets) {
+        try {
+          final file = await asset.file;
+          if (file == null) continue;
+
+          final stat = await file.stat();
+          final fileName = asset.title ?? file.path.split('/').last;
+          
+          // 判断分类
+          ImageCategory category;
+          final pathLower = file.path.toLowerCase();
+          if (pathLower.contains('screenshot')) {
+            category = ImageCategory.screenshot;
+          } else {
+            category = ImageCategory.similar;
+          }
+
+          result.putIfAbsent(category, () => []).add(ImageFileItem(
+            path: file.path,
+            name: fileName,
+            sizeBytes: stat.size,
+            createdDate: asset.createDateTime,
+            width: asset.width,
+            height: asset.height,
+            category: category,
+          ));
+        } catch (e) {
+          // 跳过无法读取的文件
+        }
+      }
+    }
+
     return result;
   }
 
   Future<int> deleteImages(List<ImageFileItem> images) async {
     int freed = 0;
-    for (final img in images) { try { await File(img.path).delete(); freed += img.sizeBytes; } catch (e) {} }
+    for (final img in images) {
+      try {
+        await PhotoManager.editor.deleteWithIds([img.path]);
+        freed += img.sizeBytes;
+      } catch (e) {
+        // 尝试直接删除文件
+        try {
+          final file = File(img.path);
+          if (await file.exists()) {
+            await file.delete();
+            freed += img.sizeBytes;
+          }
+        } catch (_) {}
+      }
+    }
     return freed;
   }
 
