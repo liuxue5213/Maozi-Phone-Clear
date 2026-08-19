@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../services/database_optimize_service.dart';
+import '../models/database_item.dart';
 
 /// 数据库优化页面
 class DatabaseOptimizeScreen extends StatefulWidget {

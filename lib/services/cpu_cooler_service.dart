@@ -49,6 +49,7 @@ class CpuCoolerService {
 enum TemperatureStatus { normal, warm, hot, critical }
 
 class HotApp {
+  bool isSelected = false;
   final String name; final String packageName; final int cpuPercent; final int temperature;
   HotApp({required this.name, required this.packageName, required this.cpuPercent, required this.temperature});
 }

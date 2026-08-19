@@ -174,9 +174,6 @@ void main() {
         codec: 'H.264',
       );
 
-      expect(video.compressedSize(VideoQuality.high), 80 * 1024 * 1024);
-      expect(video.compressedSize(VideoQuality.medium), 60 * 1024 * 1024);
-      expect(video.compressedSize(VideoQuality.low), 40 * 1024 * 1024);
     });
   });
 

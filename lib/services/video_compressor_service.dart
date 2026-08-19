@@ -1,3 +1,4 @@
+enum VideoQuality { high, medium, low }
 import 'dart:io';
 
 class VideoCompressorService {
@@ -38,3 +39,9 @@ class VideoInfo {
   String get formattedSize { if (originalSizeBytes < 1024*1024) return '${(originalSizeBytes/1024).toStringAsFixed(1)} KB'; return '${(originalSizeBytes/(1024*1024)).toStringAsFixed(1)} MB'; }
   String get formattedSaved { final s = (originalSizeBytes * 0.3).toInt(); if (s < 1024*1024) return '${(s/1024).toStringAsFixed(1)} KB'; return '${(s/(1024*1024)).toStringAsFixed(1)} MB'; }
 }
+
+extension VideoInfoExt on VideoInfo {
+  String get formattedDuration => '${durationSeconds ~/ 60}:${(durationSeconds % 60).toString().padLeft(2, '0')}';
+  String get resolution => '${width}x$height';
+}
+

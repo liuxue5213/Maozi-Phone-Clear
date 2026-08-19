@@ -47,3 +47,9 @@ extension ThreatLevelExt on ThreatLevel {
   String get displayName { switch(this) { case ThreatLevel.safe: return '安全'; case ThreatLevel.low: return '低风险'; case ThreatLevel.medium: return '中风险'; case ThreatLevel.high: return '高风险'; case ThreatLevel.critical: return '严重'; } }
   Color get color { switch(this) { case ThreatLevel.safe: return const Color(0xFF4CAF50); case ThreatLevel.low: return const Color(0xFF8BC34A); case ThreatLevel.medium: return const Color(0xFFFF9800); case ThreatLevel.high: return const Color(0xFFFF5722); case ThreatLevel.critical: return const Color(0xFFF44336); } }
 }
+
+extension ThreatTypeExt on ThreatType {
+  String get displayName { switch(this) { case ThreatType.virus: return '病毒'; case ThreatType.trojan: return '木马'; case ThreatType.adware: return '广告软件'; case ThreatType.spyware: return '间谍软件'; case ThreatType.riskware: return '风险软件'; case ThreatType.privacyRisk: return '隐私风险'; } }
+  String get icon { switch(this) { case ThreatType.virus: return '🦠'; case ThreatType.trojan: return '🐴'; case ThreatType.adware: return '📢'; case ThreatType.spyware: return '👁️'; case ThreatType.riskware: return '⚠️'; case ThreatType.privacyRisk: return '🔓'; } }
+}
+
