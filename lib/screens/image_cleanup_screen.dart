@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/image_file.dart';
 import '../services/image_scanner.dart';
+import '../utils/format_utils.dart';
 
 /// 图片清理页面
 class ImageCleanupScreen extends StatefulWidget {
@@ -203,7 +204,7 @@ class _ImageCleanupScreenState extends State<ImageCleanupScreen> {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  _formatBytes(_totalCleanableBytes),
+                  FormatUtils.formatBytes(_totalCleanableBytes),
                   style: const TextStyle(
                     color: Colors.white,
                     fontSize: 28,
@@ -242,7 +243,7 @@ class _ImageCleanupScreenState extends State<ImageCleanupScreen> {
             style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
           ),
           subtitle: Text(
-            '${items.length} 张 • ${_formatBytes(totalSize)}',
+            '${items.length} 张 • ${FormatUtils.formatBytes(totalSize)}',
             style: TextStyle(fontSize: 12, color: Colors.grey[500]),
           ),
           children: [
@@ -425,7 +426,7 @@ class _ImageCleanupScreenState extends State<ImageCleanupScreen> {
     );
   }
 
-  String _formatBytes(int bytes) {
+  String FormatUtils.formatBytes(int bytes) {
     if (bytes < 1024) return '$bytes B';
     if (bytes < 1024 * 1024) return '${(bytes / 1024).toStringAsFixed(1)} KB';
     if (bytes < 1024 * 1024 * 1024) {

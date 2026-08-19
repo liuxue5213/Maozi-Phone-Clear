@@ -4,6 +4,9 @@ import '../models/junk_item.dart';
 
 /// 垃圾文件扫描服务 - 真实文件扫描
 class ScannerService {
+  /// 最大递归深度，防止栈溢出
+  static const int _maxDepth = 8;
+
   /// 执行完整扫描，返回按分类汇总的结果
   Future<List<CategorySummary>> scanAll() async {
     final List<JunkItem> allItems = [];
@@ -21,7 +24,7 @@ class ScannerService {
       final dir = Directory(dirPath);
       if (!await dir.exists()) continue;
       try {
-        await _scanDir(dir, allItems);
+        await _scanDir(dir, allItems, 0);
       } catch (e) {
         // 跳过无权限目录
       }
@@ -38,7 +41,10 @@ class ScannerService {
         .toList();
   }
 
-  Future<void> _scanDir(Directory dir, List<JunkItem> items) async {
+  Future<void> _scanDir(Directory dir, List<JunkItem> items, int depth) async {
+    // 限制递归深度，避免栈溢出
+    if (depth >= _maxDepth) return;
+    
     await for (final entity in dir.list(followLinks: false)) {
       if (entity is File) {
         try {
@@ -74,9 +80,8 @@ class ScannerService {
           // 跳过无权限文件
         }
       } else if (entity is Directory) {
-        // 限制递归深度，避免栈溢出
         try {
-          await _scanDir(entity, items);
+          await _scanDir(entity, items, depth + 1);
         } catch (e) {
           // 跳过
         }

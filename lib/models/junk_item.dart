@@ -1,4 +1,5 @@
 import 'dart:io';
+import '../utils/format_utils.dart';
 
 /// 垃圾文件分类
 enum JunkCategory {
@@ -65,14 +66,7 @@ class JunkItem {
   });
 
   /// 格式化文件大小显示
-  String get formattedSize {
-    if (sizeBytes < 1024) return '$sizeBytes B';
-    if (sizeBytes < 1024 * 1024) return '${(sizeBytes / 1024).toStringAsFixed(1)} KB';
-    if (sizeBytes < 1024 * 1024 * 1024) {
-      return '${(sizeBytes / (1024 * 1024)).toStringAsFixed(1)} MB';
-    }
-    return '${(sizeBytes / (1024 * 1024 * 1024)).toStringAsFixed(2)} GB';
-  }
+  String get formattedSize => FormatUtils.formatBytes(sizeBytes);
 
   /// 获取文件对象
   File get file => File(path);
@@ -87,14 +81,7 @@ class CategorySummary {
 
   int get totalSizeBytes => items.fold(0, (sum, item) => sum + item.sizeBytes);
 
-  String get formattedTotalSize {
-    if (totalSizeBytes < 1024) return '$totalSizeBytes B';
-    if (totalSizeBytes < 1024 * 1024) return '${(totalSizeBytes / 1024).toStringAsFixed(1)} KB';
-    if (totalSizeBytes < 1024 * 1024 * 1024) {
-      return '${(totalSizeBytes / (1024 * 1024)).toStringAsFixed(1)} MB';
-    }
-    return '${(totalSizeBytes / (1024 * 1024 * 1024)).toStringAsFixed(2)} GB';
-  }
+  String get formattedTotalSize => FormatUtils.formatBytes(totalSizeBytes);
 
   int get selectedCount => items.where((item) => item.isSelected).length;
 

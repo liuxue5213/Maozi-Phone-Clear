@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../services/privacy_service.dart';
+import '../utils/format_utils.dart';import '../services/privacy_service.dart';
 
 /// 隐私清理页面
 class PrivacyCleanupScreen extends StatefulWidget {
@@ -50,7 +50,7 @@ class _PrivacyCleanupScreenState extends State<PrivacyCleanupScreen> {
         ),
         content: Text(
           '将清理以下 ${selected.length} 项隐私数据:\n'
-          '• 释放空间: ${_formatBytes(totalBytes)}\n'
+          '• 释放空间: ${FormatUtils.formatBytes(totalBytes)}\n'
           '• 清理后无法恢复\n\n'
           '确定要继续吗？',
         ),
@@ -77,7 +77,7 @@ class _PrivacyCleanupScreenState extends State<PrivacyCleanupScreen> {
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('已清理隐私数据 ${_formatBytes(freed)}'),
+          content: Text('已清理隐私数据 ${FormatUtils.formatBytes(freed)}'),
           backgroundColor: const Color(0xFF9C27B0),
         ),
       );
@@ -291,7 +291,7 @@ class _PrivacyCleanupScreenState extends State<PrivacyCleanupScreen> {
           ),
           const Spacer(),
           Text(
-            _formatBytes(_totalCleanableBytes),
+            FormatUtils.formatBytes(_totalCleanableBytes),
             style: const TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w600,
@@ -315,7 +315,7 @@ class _PrivacyCleanupScreenState extends State<PrivacyCleanupScreen> {
     );
   }
 
-  String _formatBytes(int bytes) {
+  String FormatUtils.formatBytes(int bytes) {
     if (bytes < 1024) return '$bytes B';
     if (bytes < 1024 * 1024) return '${(bytes / 1024).toStringAsFixed(1)} KB';
     if (bytes < 1024 * 1024 * 1024) {

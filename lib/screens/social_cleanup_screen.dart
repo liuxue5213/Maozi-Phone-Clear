@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../services/social_scanner.dart';
+import '../utils/format_utils.dart';import '../services/social_scanner.dart';
 
 /// 社交应用专清页面
 class SocialCleanupScreen extends StatefulWidget {
@@ -51,7 +51,7 @@ class _SocialCleanupScreenState extends State<SocialCleanupScreen> {
         title: const Text('确认清理'),
         content: Text(
           '将清理 ${selected.length} 个文件\n'
-          '释放空间: ${_formatBytes(selected.fold<int>(0, (sum, i) => sum + i.sizeBytes))}\n\n'
+          '释放空间: ${FormatUtils.formatBytes(selected.fold<int>(0, (sum, i) => sum + i.sizeBytes))}\n\n'
           '注意：清理后聊天中的图片/视频可能无法再次查看',
         ),
         actions: [
@@ -85,7 +85,7 @@ class _SocialCleanupScreenState extends State<SocialCleanupScreen> {
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('已清理 ${_formatBytes(freed)}'),
+          content: Text('已清理 ${FormatUtils.formatBytes(freed)}'),
           backgroundColor: const Color(0xFF4CAF50),
         ),
       );
@@ -218,7 +218,7 @@ class _SocialCleanupScreenState extends State<SocialCleanupScreen> {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  _formatBytes(_totalCleanableBytes),
+                  FormatUtils.formatBytes(_totalCleanableBytes),
                   style: const TextStyle(
                     color: Colors.white,
                     fontSize: 28,
@@ -265,7 +265,7 @@ class _SocialCleanupScreenState extends State<SocialCleanupScreen> {
             style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
           ),
           subtitle: Text(
-            '${allItems.length} 项 • 选中 ${_formatBytes(selectedSize)}',
+            '${allItems.length} 项 • 选中 ${FormatUtils.formatBytes(selectedSize)}',
             style: TextStyle(fontSize: 12, color: Colors.grey[500]),
           ),
           trailing: SizedBox(
@@ -275,7 +275,7 @@ class _SocialCleanupScreenState extends State<SocialCleanupScreen> {
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 Text(
-                  _formatBytes(totalSize),
+                  FormatUtils.formatBytes(totalSize),
                   style: const TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
@@ -339,7 +339,7 @@ class _SocialCleanupScreenState extends State<SocialCleanupScreen> {
               ),
               const Spacer(),
               Text(
-                _formatBytes(totalSize),
+                FormatUtils.formatBytes(totalSize),
                 style: const TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
@@ -439,7 +439,7 @@ class _SocialCleanupScreenState extends State<SocialCleanupScreen> {
           ),
           const Spacer(),
           Text(
-            _formatBytes(_totalCleanableBytes),
+            FormatUtils.formatBytes(_totalCleanableBytes),
             style: const TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w600,
@@ -472,7 +472,7 @@ class _SocialCleanupScreenState extends State<SocialCleanupScreen> {
     );
   }
 
-  String _formatBytes(int bytes) {
+  String FormatUtils.formatBytes(int bytes) {
     if (bytes < 1024) return '$bytes B';
     if (bytes < 1024 * 1024) return '${(bytes / 1024).toStringAsFixed(1)} KB';
     if (bytes < 1024 * 1024 * 1024) {

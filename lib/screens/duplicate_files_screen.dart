@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../models/duplicate_file.dart';
+import '../utils/format_utils.dart';import '../models/duplicate_file.dart';
 import '../services/duplicate_scanner.dart';
 
 /// 重复文件页面
@@ -57,7 +57,7 @@ class _DuplicateFilesScreenState extends State<DuplicateFilesScreen> {
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('已清理 ${_formatBytes(freed)}'),
+          content: Text('已清理 ${FormatUtils.formatBytes(freed)}'),
           backgroundColor: const Color(0xFF4CAF50),
         ),
       );
@@ -179,7 +179,7 @@ class _DuplicateFilesScreenState extends State<DuplicateFilesScreen> {
                       ),
                     ),
                     Text(
-                      '可释放 ${_formatBytes(totalWasted)}',
+                      '可释放 ${FormatUtils.formatBytes(totalWasted)}',
                       style: TextStyle(
                         fontSize: 13,
                         color: Colors.grey[600],
@@ -366,7 +366,7 @@ class _DuplicateFilesScreenState extends State<DuplicateFilesScreen> {
           ),
           const Spacer(),
           Text(
-            _formatBytes(selectedBytes),
+            FormatUtils.formatBytes(selectedBytes),
             style: const TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w600,
@@ -399,7 +399,7 @@ class _DuplicateFilesScreenState extends State<DuplicateFilesScreen> {
     );
   }
 
-  String _formatBytes(int bytes) {
+  String FormatUtils.formatBytes(int bytes) {
     if (bytes < 1024) return '$bytes B';
     if (bytes < 1024 * 1024) return '${(bytes / 1024).toStringAsFixed(1)} KB';
     if (bytes < 1024 * 1024 * 1024) {

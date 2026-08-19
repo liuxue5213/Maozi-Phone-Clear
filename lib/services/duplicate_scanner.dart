@@ -4,6 +4,9 @@ import '../models/duplicate_file.dart';
 
 /// 重复文件扫描服务 - 基于 MD5 全文哈希的真实重复检测
 class DuplicateScanner {
+  /// 最大递归深度，防止栈溢出
+  static const int _maxDepth = 8;
+
   /// 扫描重复文件（基于内容哈希）
   Future<List<DuplicateGroup>> scanDuplicates() async {
     final Map<String, List<DuplicateFile>> sizeGroups = {};
@@ -20,7 +23,7 @@ class DuplicateScanner {
       final dir = Directory(dirPath);
       if (!await dir.exists()) continue;
       try {
-        await _scanForSize(dirPath, sizeGroups);
+        await _scanForSize(dirPath, sizeGroups, 0);
       } catch (e) { /* skip */ }
     }
 
@@ -55,7 +58,10 @@ class DuplicateScanner {
     return result;
   }
 
-  Future<void> _scanForSize(String dirPath, Map<String, List<DuplicateFile>> groups) async {
+  Future<void> _scanForSize(String dirPath, Map<String, List<DuplicateFile>> groups, int depth) async {
+    // 限制递归深度，避免栈溢出
+    if (depth >= _maxDepth) return;
+    
     final dir = Directory(dirPath);
     await for (final entity in dir.list(followLinks: false)) {
       if (entity is File) {
@@ -68,7 +74,7 @@ class DuplicateScanner {
           );
         } catch (e) { /* skip */ }
       } else if (entity is Directory) {
-        try { await _scanForSize(entity.path, groups); } catch (e) {}
+        try { await _scanForSize(entity.path, groups, depth + 1); } catch (e) {}
       }
     }
   }

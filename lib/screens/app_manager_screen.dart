@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../services/app_manager_service.dart';
+import '../utils/format_utils.dart';import '../services/app_manager_service.dart';
 
 /// 应用管理页面
 class AppManagerScreen extends StatefulWidget {
@@ -167,7 +167,7 @@ class _AppManagerScreenState extends State<AppManagerScreen> {
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
           _buildSummaryItem('${_apps.length}', '个应用'),
-          _buildSummaryItem('${_formatBytes(totalCache)}', '缓存'),
+          _buildSummaryItem('${FormatUtils.formatBytes(totalCache)}', '缓存'),
           _buildSummaryItem('${userApps}', '用户'),
           _buildSummaryItem('${preApps}', '预装'),
         ],
@@ -363,7 +363,7 @@ class _AppManagerScreenState extends State<AppManagerScreen> {
           ),
           const Spacer(),
           Text(
-            _formatBytes(selectedBytes),
+            FormatUtils.formatBytes(selectedBytes),
             style: const TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w600,
@@ -382,7 +382,7 @@ class _AppManagerScreenState extends State<AppManagerScreen> {
                 });
                 if (mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('已清理缓存 ${_formatBytes(freed)}')),
+                    SnackBar(content: Text('已清理缓存 ${FormatUtils.formatBytes(freed)}')),
                   );
                 }
               },
@@ -414,7 +414,7 @@ class _AppManagerScreenState extends State<AppManagerScreen> {
                 final freed = await _service.batchUninstall(selectedApps);
                 if (mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('已卸载 ${selectedApps.length} 个应用，释放 ${_formatBytes(freed)}')),
+                    SnackBar(content: Text('已卸载 ${selectedApps.length} 个应用，释放 ${FormatUtils.formatBytes(freed)}')),
                   );
                 }
                 _loadApps();
@@ -430,7 +430,7 @@ class _AppManagerScreenState extends State<AppManagerScreen> {
     );
   }
 
-  String _formatBytes(int bytes) {
+  String FormatUtils.formatBytes(int bytes) {
     if (bytes < 1024) return '$bytes B';
     if (bytes < 1024 * 1024) return '${(bytes / 1024).toStringAsFixed(1)} KB';
     if (bytes < 1024 * 1024 * 1024) {

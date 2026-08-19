@@ -1,4 +1,5 @@
 import 'dart:io';
+import '../utils/format_utils.dart';
 
 /// 图片分类
 enum ImageCategory {
@@ -60,21 +61,12 @@ class ImageFileItem {
 
   File get file => File(path);
 
-  String get formattedSize {
-    if (sizeBytes < 1024) return '$sizeBytes B';
-    if (sizeBytes < 1024 * 1024) return '${(sizeBytes / 1024).toStringAsFixed(1)} KB';
-    if (sizeBytes < 1024 * 1024 * 1024) {
-      return '${(sizeBytes / (1024 * 1024)).toStringAsFixed(1)} MB';
-    }
-    return '${(sizeBytes / (1024 * 1024 * 1024)).toStringAsFixed(2)} GB';
-  }
+  String get formattedSize => FormatUtils.formatBytes(sizeBytes);
 
   String get resolution => '${width}x$height';
 
   /// 格式化日期
-  String get formattedDate {
-    return '${createdDate.year}-${createdDate.month.toString().padLeft(2, '0')}-${createdDate.day.toString().padLeft(2, '0')}';
-  }
+  String get formattedDate => FormatUtils.formatDate(createdDate);
 }
 
 /// 相似图片组
@@ -85,18 +77,17 @@ class SimilarImageGroup {
 
   int get totalSizeBytes => images.fold(0, (sum, img) => sum + img.sizeBytes);
 
-  String get formattedTotalSize {
-    if (totalSizeBytes < 1024) return '$totalSizeBytes B';
-    if (totalSizeBytes < 1024 * 1024) return '${(totalSizeBytes / 1024).toStringAsFixed(1)} KB';
-    if (totalSizeBytes < 1024 * 1024 * 1024) {
-      return '${(totalSizeBytes / (1024 * 1024)).toStringAsFixed(1)} MB';
-    }
-    return '${(totalSizeBytes / (1024 * 1024 * 1024)).toStringAsFixed(2)} GB';
-  }
+  String get formattedTotalSize => FormatUtils.formatBytes(totalSizeBytes);
 
   /// 保留最高清的，其余可清理
-  ImageFileItem get bestImage =>
-      images.reduce((a, b) => (a.width * a.height) > (b.width * b.height) ? a : b);
+  /// 如果所有图片宽高都为0，则保留第一个
+  ImageFileItem get bestImage {
+    if (images.isEmpty) throw StateError('图片列表为空');
+    // 过滤出有效尺寸的图片
+    final validImages = images.where((img) => img.width > 0 && img.height > 0).toList();
+    if (validImages.isEmpty) return images.first; // 都没有尺寸信息，保留第一个
+    return validImages.reduce((a, b) => (a.width * a.height) > (b.width * b.height) ? a : b);
+  }
 
   List<ImageFileItem> get cleanableImages =>
       images.where((img) => img.path != bestImage.path).toList();

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../services/scheduled_cleanup_service.dart';
+import '../utils/format_utils.dart';import '../services/scheduled_cleanup_service.dart';
 import '../services/recycle_bin_service.dart';
 
 /// 设置页面
@@ -215,7 +215,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   children: [
                     _buildStatItem(
                       '累计清理',
-                      _formatBytes(totalBytes),
+                      FormatUtils.formatBytes(totalBytes),
                       Icons.delete_sweep,
                       const Color(0xFF4CAF50),
                     ),
@@ -262,7 +262,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                 ),
                                 const Spacer(),
                                 Text(
-                                  _formatBytes(record['bytesCleaned']),
+                                  FormatUtils.formatBytes(record['bytesCleaned']),
                                   style: const TextStyle(
                                     fontSize: 13,
                                     fontWeight: FontWeight.w500,
@@ -343,7 +343,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             ),
                           ),
                           Text(
-                            '${_recycleBinItems.length} 个文件 • ${_formatBytes(totalSize)}',
+                            '${_recycleBinItems.length} 个文件 • ${FormatUtils.formatBytes(totalSize)}',
                             style: TextStyle(fontSize: 12, color: Colors.grey[500]),
                           ),
                         ],
@@ -494,7 +494,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     }
   }
 
-  String _formatBytes(int bytes) {
+  String FormatUtils.formatBytes(int bytes) {
     if (bytes < 1024) return '$bytes B';
     if (bytes < 1024 * 1024) return '${(bytes / 1024).toStringAsFixed(1)} KB';
     if (bytes < 1024 * 1024 * 1024) {

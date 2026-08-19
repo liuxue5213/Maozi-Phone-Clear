@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../services/video_compressor_service.dart';
+import '../utils/format_utils.dart';import '../services/video_compressor_service.dart';
 
 /// 视频压缩页面
 class VideoCompressionScreen extends StatefulWidget {
@@ -47,7 +47,7 @@ class _VideoCompressionScreenState extends State<VideoCompressionScreen> {
         content: Text(
           '将对 ${selected.length} 个视频进行压缩\n'
           '压缩质量: ${_quality.displayName}\n'
-          '预计节省: ${_formatBytes(totalSaved)}\n\n'
+          '预计节省: ${FormatUtils.formatBytes(totalSaved)}\n\n'
           '注意: 压缩后原视频将被覆盖',
         ),
         actions: [
@@ -86,7 +86,7 @@ class _VideoCompressionScreenState extends State<VideoCompressionScreen> {
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('压缩完成！节省 ${_formatBytes(saved)}'),
+          content: Text('压缩完成！节省 ${FormatUtils.formatBytes(saved)}'),
           backgroundColor: const Color(0xFF4CAF50),
         ),
       );
@@ -266,7 +266,7 @@ class _VideoCompressionScreenState extends State<VideoCompressionScreen> {
           Column(
             children: [
               Text(
-                _formatBytes(totalSize),
+                FormatUtils.formatBytes(totalSize),
                 style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
               ),
               const Text('总大小', style: TextStyle(color: Colors.white70, fontSize: 12)),
@@ -378,7 +378,7 @@ class _VideoCompressionScreenState extends State<VideoCompressionScreen> {
                         const Icon(Icons.arrow_forward, size: 14, color: Color(0xFF4CAF50)),
                         const SizedBox(width: 4),
                         Text(
-                          _formatBytes(compressedSize),
+                          FormatUtils.formatBytes(compressedSize),
                           style: const TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.w600,
@@ -393,7 +393,7 @@ class _VideoCompressionScreenState extends State<VideoCompressionScreen> {
                             borderRadius: BorderRadius.circular(4),
                           ),
                           child: Text(
-                            '-${_formatBytes(savedBytes)}',
+                            '-${FormatUtils.formatBytes(savedBytes)}',
                             style: const TextStyle(
                               fontSize: 10,
                               color: Color(0xFF4CAF50),
@@ -444,7 +444,7 @@ class _VideoCompressionScreenState extends State<VideoCompressionScreen> {
           ),
           const Spacer(),
           Text(
-            '可节省 ${_formatBytes(_totalSavedBytes)}',
+            '可节省 ${FormatUtils.formatBytes(_totalSavedBytes)}',
             style: const TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w600,
@@ -484,7 +484,7 @@ class _VideoCompressionScreenState extends State<VideoCompressionScreen> {
     );
   }
 
-  String _formatBytes(int bytes) {
+  String FormatUtils.formatBytes(int bytes) {
     if (bytes < 1024) return '$bytes B';
     if (bytes < 1024 * 1024) return '${(bytes / 1024).toStringAsFixed(1)} KB';
     if (bytes < 1024 * 1024 * 1024) {

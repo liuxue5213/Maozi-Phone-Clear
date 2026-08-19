@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import '../models/junk_item.dart';
 import '../services/scanner_service.dart';
+import '../utils/format_utils.dart';
 
 /// 应用状态枚举
 enum AppState {
@@ -45,13 +46,13 @@ class CleanProvider extends ChangeNotifier {
       selectedItems.fold(0, (sum, item) => sum + item.sizeBytes);
 
   /// 格式化已勾选大小
-  String get formattedSelectedSize => _formatBytes(selectedBytes);
+  String get formattedSelectedSize => FormatUtils.formatBytes(selectedBytes);
 
   /// 格式化扫描到的总大小
-  String get formattedScannedSize => _formatBytes(_totalScannedBytes);
+  String get formattedScannedSize => FormatUtils.formatBytes(_totalScannedBytes);
 
   /// 格式化已清理大小
-  String get formattedCleanedSize => _formatBytes(_totalCleanedBytes);
+  String get formattedCleanedSize => FormatUtils.formatBytes(_totalCleanedBytes);
 
   /// 开始扫描
   Future<void> startScan() async {
@@ -76,7 +77,7 @@ class CleanProvider extends ChangeNotifier {
         _categories.fold(0, (sum, cat) => sum + cat.totalSizeBytes);
 
     _state = AppState.selecting;
-    _statusMessage = '扫描完成，发现 ${_formatBytes(_totalScannedBytes)} 垃圾';
+    _statusMessage = '扫描完成，发现 ${FormatUtils.formatBytes(_totalScannedBytes)} 垃圾';
     notifyListeners();
   }
 
@@ -154,15 +155,5 @@ class CleanProvider extends ChangeNotifier {
     _categories.add(category);
     _totalScannedBytes += category.totalSizeBytes;
     notifyListeners();
-  }
-
-  /// 格式化字节大小
-  String _formatBytes(int bytes) {
-    if (bytes < 1024) return '$bytes B';
-    if (bytes < 1024 * 1024) return '${(bytes / 1024).toStringAsFixed(1)} KB';
-    if (bytes < 1024 * 1024 * 1024) {
-      return '${(bytes / (1024 * 1024)).toStringAsFixed(1)} MB';
-    }
-    return '${(bytes / (1024 * 1024 * 1024)).toStringAsFixed(2)} GB';
   }
 }

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../services/database_optimize_service.dart';
+import '../utils/format_utils.dart';import '../services/database_optimize_service.dart';
 import '../models/database_item.dart';
 
 /// 数据库优化页面
@@ -57,7 +57,7 @@ class _DatabaseOptimizeScreenState extends State<DatabaseOptimizeScreen> {
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('优化完成！释放 ${_formatBytes(freed)}'),
+          content: Text('优化完成！释放 ${FormatUtils.formatBytes(freed)}'),
           backgroundColor: const Color(0xFF9C27B0),
         ),
       );
@@ -177,7 +177,7 @@ class _DatabaseOptimizeScreenState extends State<DatabaseOptimizeScreen> {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  _formatBytes(totalWasted),
+                  FormatUtils.formatBytes(totalWasted),
                   style: const TextStyle(
                     color: Colors.white,
                     fontSize: 28,
@@ -224,7 +224,7 @@ class _DatabaseOptimizeScreenState extends State<DatabaseOptimizeScreen> {
                   ),
                 ),
                 Text(
-                  '数据库已执行 VACUUM 优化，释放 ${_formatBytes(_optimizedBytes!)}',
+                  '数据库已执行 VACUUM 优化，释放 ${FormatUtils.formatBytes(_optimizedBytes!)}',
                   style: TextStyle(fontSize: 12, color: Colors.grey[600]),
                 ),
               ],
@@ -319,7 +319,7 @@ class _DatabaseOptimizeScreenState extends State<DatabaseOptimizeScreen> {
       child: Row(
         children: [
           Text(
-            '可释放 ${_formatBytes(_totalWastedBytes)}',
+            '可释放 ${FormatUtils.formatBytes(_totalWastedBytes)}',
             style: TextStyle(fontSize: 14, color: Colors.grey[600]),
           ),
           const Spacer(),
@@ -339,7 +339,7 @@ class _DatabaseOptimizeScreenState extends State<DatabaseOptimizeScreen> {
     );
   }
 
-  String _formatBytes(int bytes) {
+  String FormatUtils.formatBytes(int bytes) {
     if (bytes < 1024) return '$bytes B';
     if (bytes < 1024 * 1024) return '${(bytes / 1024).toStringAsFixed(1)} KB';
     if (bytes < 1024 * 1024 * 1024) {

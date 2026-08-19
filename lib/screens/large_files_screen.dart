@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../models/large_file.dart';
+import '../utils/format_utils.dart';import '../models/large_file.dart';
 import '../services/large_file_scanner.dart';
 
 /// 大文件管理页面
@@ -51,7 +51,7 @@ class _LargeFilesScreenState extends State<LargeFilesScreen> {
       builder: (ctx) => AlertDialog(
         title: const Text('确认删除'),
         content: Text('确定要删除选中的 ${selected.length} 个文件吗？\n'
-            '释放空间: ${_formatBytes(selected.fold<int>(0, (sum, f) => sum + f.sizeBytes))}'),
+            '释放空间: ${FormatUtils.formatBytes(selected.fold<int>(0, (sum, f) => sum + f.sizeBytes))}'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
@@ -81,7 +81,7 @@ class _LargeFilesScreenState extends State<LargeFilesScreen> {
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('已删除 ${selected.length} 个文件，释放 ${_formatBytes(freed)}'),
+          content: Text('已删除 ${selected.length} 个文件，释放 ${FormatUtils.formatBytes(freed)}'),
           backgroundColor: const Color(0xFF4CAF50),
         ),
       );
@@ -212,7 +212,7 @@ class _LargeFilesScreenState extends State<LargeFilesScreen> {
               ),
               const SizedBox(width: 12),
               Text(
-                _formatBytes(totalSize),
+                FormatUtils.formatBytes(totalSize),
                 style: const TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
@@ -416,7 +416,7 @@ class _LargeFilesScreenState extends State<LargeFilesScreen> {
           ),
           const Spacer(),
           Text(
-            '已选 ${_formatBytes(selectedBytes)}',
+            '已选 ${FormatUtils.formatBytes(selectedBytes)}',
             style: const TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w600,
@@ -440,7 +440,7 @@ class _LargeFilesScreenState extends State<LargeFilesScreen> {
     );
   }
 
-  String _formatBytes(int bytes) {
+  String FormatUtils.formatBytes(int bytes) {
     if (bytes < 1024) return '$bytes B';
     if (bytes < 1024 * 1024) return '${(bytes / 1024).toStringAsFixed(1)} KB';
     if (bytes < 1024 * 1024 * 1024) {
