@@ -6,8 +6,8 @@ class PermissionService {
   /// 检查是否有存储权限
   static Future<bool> hasStoragePermission() async {
     if (Platform.isAndroid) {
-      final androidInfo = await _getAndroidSdkVersion();
-      if (androidInfo >= 30) {
+      final sdkVersion = await _getAndroidSdkVersion();
+      if (sdkVersion >= 30) {
         // Android 11+ 需要 MANAGE_EXTERNAL_STORAGE
         return await Permission.manageExternalStorage.isGranted;
       } else {
@@ -21,8 +21,8 @@ class PermissionService {
   /// 请求存储权限
   static Future<bool> requestStoragePermission() async {
     if (Platform.isAndroid) {
-      final androidInfo = await _getAndroidSdkVersion();
-      if (androidInfo >= 30) {
+      final sdkVersion = await _getAndroidSdkVersion();
+      if (sdkVersion >= 30) {
         // Android 11+ 请求 MANAGE_EXTERNAL_STORAGE
         final status = await Permission.manageExternalStorage.request();
         return status.isGranted;
@@ -38,8 +38,8 @@ class PermissionService {
   /// 检查权限是否被永久拒绝
   static Future<bool> isPermissionPermanentlyDenied() async {
     if (Platform.isAndroid) {
-      final androidInfo = await _getAndroidSdkVersion();
-      if (androidInfo >= 30) {
+      final sdkVersion = await _getAndroidSdkVersion();
+      if (sdkVersion >= 30) {
         return await Permission.manageExternalStorage.isPermanentlyDenied;
       } else {
         return await Permission.storage.isPermanentlyDenied;
@@ -55,11 +55,14 @@ class PermissionService {
 
   /// 获取 Android SDK 版本
   static Future<int> _getAndroidSdkVersion() async {
+    if (!Platform.isAndroid) return 0;
     try {
-      // 通过 platform channel 获取，这里简化处理
-      return 33; // 默认返回 Android 13
+      // 读取系统属性获取 Android SDK 版本
+      final result = await Process.run('getprop', ['ro.build.version.sdk']);
+      final sdkString = result.stdout.toString().trim();
+      return int.tryParse(sdkString) ?? 33;
     } catch (e) {
-      return 33;
+      return 33; // 默认返回 Android 13
     }
   }
 }
