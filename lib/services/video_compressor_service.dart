@@ -39,7 +39,6 @@ class VideoCompressorService {
 
   /// 演示数据：视频文件
   List<VideoInfo> _getDemoVideos() {
-    final now = DateTime.now();
     return [
       VideoInfo(path: '/storage/emulated/0/DCIM/Camera/video_20240815_001.mp4', name: 'video_20240815_001.mp4', originalSizeBytes: 256789012, durationSeconds: 185, width: 1920, height: 1080, bitrate: 12000, codec: '.MP4'),
       VideoInfo(path: '/storage/emulated/0/DCIM/Camera/video_20240814_001.mp4', name: 'video_20240814_001.mp4', originalSizeBytes: 189234567, durationSeconds: 120, width: 1920, height: 1080, bitrate: 10000, codec: '.MP4'),

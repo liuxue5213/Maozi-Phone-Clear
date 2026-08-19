@@ -43,7 +43,7 @@ class LargeFileScanner {
 
   Future<int> deleteFiles(List<LargeFileItem> files) async {
     int freed = 0;
-    for (final file in files) { try { await File(file.path).delete(); freed += file.sizeBytes; } catch (e) {}
+    for (final file in files) { try { await File(file.path).delete(); freed += file.sizeBytes; } catch (e) {} }
     return freed;
   }
 

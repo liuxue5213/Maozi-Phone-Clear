@@ -47,7 +47,7 @@ class ImageScanner {
 
   Future<int> deleteImages(List<ImageFileItem> images) async {
     int freed = 0;
-    for (final img in images) { try { await File(img.path).delete(); freed += img.sizeBytes; } catch (e) {}
+    for (final img in images) { try { await File(img.path).delete(); freed += img.sizeBytes; } catch (e) {} }
     return freed;
   }
 
