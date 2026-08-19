@@ -1,3 +1,4 @@
+import '../widgets/file_preview_dialog.dart';
 import 'package:flutter/material.dart';
 import '../models/duplicate_file.dart';
 import '../services/duplicate_scanner.dart';
