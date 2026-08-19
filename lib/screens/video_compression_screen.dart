@@ -36,7 +36,7 @@ class _VideoCompressionScreenState extends State<VideoCompressionScreen> {
     final selected = _videos.where((v) => v.isSelected).toList();
     if (selected.isEmpty) return;
 
-    final totalSaved = selected.fold<int>(0, (sum, v) => sum + v.savedBytes(_quality));
+    final totalSaved = selected.fold<int>(0, (sum, v) => sum + v.savedBytes(_quality.index + 1));
 
     final confirm = await showDialog<bool>(
       context: context,
@@ -71,7 +71,7 @@ class _VideoCompressionScreenState extends State<VideoCompressionScreen> {
     int saved = 0;
     for (int i = 0; i < selected.length; i++) {
       await Future.delayed(const Duration(milliseconds: 300));
-      saved += selected[i].savedBytes(_quality);
+      saved += selected[i].savedBytes(_quality.index + 1);
       setState(() => _progress = (i + 1) / selected.length);
     }
 
@@ -94,7 +94,7 @@ class _VideoCompressionScreenState extends State<VideoCompressionScreen> {
   int get _totalSavedBytes {
     return _videos
         .where((v) => v.isSelected)
-        .fold<int>(0, (sum, v) => sum + v.savedBytes(_quality));
+        .fold<int>(0, (sum, v) => sum + v.savedBytes(_quality.index + 1));
   }
 
   @override
@@ -275,8 +275,8 @@ class _VideoCompressionScreenState extends State<VideoCompressionScreen> {
   }
 
   Widget _buildVideoCard(VideoInfo video) {
-    final savedBytes = video.savedBytes(_quality);
-    final compressedSize = video.compressedSize(_quality);
+    final savedBytes = video.savedBytes(_quality.index + 1);
+    final compressedSize = video.compressedSize(_quality.index + 1);
 
     return Card(
       margin: const EdgeInsets.only(bottom: 8),

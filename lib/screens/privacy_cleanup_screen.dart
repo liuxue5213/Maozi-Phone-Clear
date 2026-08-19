@@ -194,7 +194,7 @@ class _PrivacyCleanupScreenState extends State<PrivacyCleanupScreen> {
                 ),
                 child: Center(
                   child: Text(
-                    item.type.icon,
+                    _privacyIcon(item.type),
                     style: const TextStyle(fontSize: 22),
                   ),
                 ),
@@ -208,7 +208,7 @@ class _PrivacyCleanupScreenState extends State<PrivacyCleanupScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      item.type.displayName,
+                      item.type,
                       style: const TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.w600,
@@ -216,7 +216,7 @@ class _PrivacyCleanupScreenState extends State<PrivacyCleanupScreen> {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      item.type.description,
+                      item.description,
                       style: TextStyle(fontSize: 12, color: Colors.grey[500]),
                     ),
                     const SizedBox(height: 4),
@@ -322,3 +322,13 @@ class _PrivacyCleanupScreenState extends State<PrivacyCleanupScreen> {
     return '${(bytes / (1024 * 1024 * 1024)).toStringAsFixed(2)} GB';
   }
 }
+
+String _privacyIcon(String type) {
+  switch (type) {
+    case '浏览器历史': return '🌐';
+    case '搜索记录': return '🔍';
+    case '通话记录': return '📞';
+    default: return '📋';
+  }
+}
+

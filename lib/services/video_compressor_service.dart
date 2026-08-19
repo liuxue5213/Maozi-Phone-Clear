@@ -1,5 +1,6 @@
-enum VideoQuality { high, medium, low }
 import 'dart:io';
+
+enum VideoQuality { high, medium, low }
 
 class VideoCompressorService {
   Future<List<VideoInfo>> scanVideos() async {
@@ -12,8 +13,8 @@ class VideoCompressorService {
       await for (final entity in dir.list(recursive: true, followLinks: false)) {
         if (entity is File) {
           try {
-            final ext = entity.path.toLowerCase().split('.').last;
-            if (videoExts.contains('.$ext')) {
+            final ext = '.${entity.path.toLowerCase().split('.').last}';
+            if (videoExts.contains(ext)) {
               final stat = await entity.stat();
               videos.add(VideoInfo(path: entity.path, name: entity.path.split('/').last, originalSizeBytes: stat.size, durationSeconds: 0, width: 0, height: 0, bitrate: 0, codec: ext.toUpperCase()));
             }
@@ -25,8 +26,7 @@ class VideoCompressorService {
   }
 
   Future<int> compressVideos(List<VideoInfo> videos) async {
-    // 真实压缩需要 FFmpeg，这里返回估算值
-    return videos.fold(0, (s, v) => s + (v.originalSizeBytes * 0.3).toInt());
+    int total = 0; for (final v in videos) { total += (v.originalSizeBytes * 0.3).toInt(); } return total;
   }
 }
 
@@ -34,14 +34,16 @@ class VideoInfo {
   final String path; final String name; final int originalSizeBytes; final int durationSeconds; final int width; final int height; final int bitrate; final String codec;
   bool isSelected = true;
   VideoInfo({required this.path, required this.name, required this.originalSizeBytes, required this.durationSeconds, required this.width, required this.height, required this.bitrate, required this.codec});
-  int compressedSize(int quality) => (originalSizeBytes * (1 - quality * 0.2)).toInt();
+  int compressedSize(int quality) => (originalSizeBytes * (1 - quality * 0.2)).round();
   int savedBytes(int quality) => originalSizeBytes - compressedSize(quality);
   String get formattedSize { if (originalSizeBytes < 1024*1024) return '${(originalSizeBytes/1024).toStringAsFixed(1)} KB'; return '${(originalSizeBytes/(1024*1024)).toStringAsFixed(1)} MB'; }
-  String get formattedSaved { final s = (originalSizeBytes * 0.3).toInt(); if (s < 1024*1024) return '${(s/1024).toStringAsFixed(1)} KB'; return '${(s/(1024*1024)).toStringAsFixed(1)} MB'; }
-}
-
-extension VideoInfoExt on VideoInfo {
+  String get formattedSaved => '${(savedBytes(1)/(1024*1024)).toStringAsFixed(1)} MB';
   String get formattedDuration => '${durationSeconds ~/ 60}:${(durationSeconds % 60).toString().padLeft(2, '0')}';
   String get resolution => '${width}x$height';
 }
 
+extension VideoQualityExt on VideoQuality {
+  String get displayName { switch(this) { case VideoQuality.high: return '高质量'; case VideoQuality.medium: return '中等'; case VideoQuality.low: return '压缩优先'; } }
+  double get compressionRatio { switch(this) { case VideoQuality.high: return 0.2; case VideoQuality.medium: return 0.4; case VideoQuality.low: return 0.6; } }
+  String get description { switch(this) { case VideoQuality.high: return '保留90%画质'; case VideoQuality.medium: return '保留70%画质'; case VideoQuality.low: return '保留50%画质'; } }
+}
