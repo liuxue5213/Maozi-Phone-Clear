@@ -32,7 +32,7 @@ class MyApp extends StatelessWidget {
     return ChangeNotifierProvider(
       create: (_) => CleanProvider(),
       child: MaterialApp(
-        title: '猫子手机清理',
+        title: '帽子垃圾清理',
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
           colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF2196F3)),
@@ -125,7 +125,7 @@ class HomeTab extends StatelessWidget {
       backgroundColor: const Color(0xFFF5F7FA),
       appBar: AppBar(
         title: const Text(
-          '猫子手机清理',
+          '帽子垃圾清理',
           style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
         ),
         centerTitle: true,
@@ -197,7 +197,7 @@ class HomeTab extends StatelessWidget {
           ),
           const SizedBox(height: 24),
           const Text(
-            '猫子手机清理',
+            '帽子垃圾清理',
             style: TextStyle(
               fontSize: 28,
               fontWeight: FontWeight.bold,

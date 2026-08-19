@@ -458,7 +458,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             const Icon(Icons.phone_android, size: 48, color: Color(0xFF2196F3)),
             const SizedBox(height: 12),
             const Text(
-              '猫子手机清理',
+              '帽子垃圾清理',
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 4),

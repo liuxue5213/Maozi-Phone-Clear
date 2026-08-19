@@ -17,7 +17,7 @@
     <uses-permission android:name="android.permission.INTERNET" />
 
     <application
-        android:label="猫子手机清理"
+        android:label="帽子垃圾清理"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher"
         android:requestLegacyExternalStorage="true">
