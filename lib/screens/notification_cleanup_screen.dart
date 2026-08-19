@@ -98,15 +98,32 @@ class _NotificationCleanupScreenState extends State<NotificationCleanupScreen> {
   Widget _buildBody() {
     if (_notifications.isEmpty) {
       return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(Icons.notifications_off_outlined, size: 80, color: Color(0xFF4CAF50)),
-            const SizedBox(height: 16),
-            const Text('通知栏很干净', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
-            const SizedBox(height: 8),
-            Text('没有需要清理的通知', style: TextStyle(color: Colors.grey[500])),
-          ],
+        child: Padding(
+          padding: const EdgeInsets.all(32),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(Icons.notifications_off_outlined, size: 80, color: Color(0xFF4CAF50)),
+              const SizedBox(height: 16),
+              const Text('通知栏很干净', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
+              const SizedBox(height: 8),
+              Text(
+                '没有需要清理的通知\n\n提示：如需清理通知栏消息，请在系统设置中开启通知访问权限',
+                textAlign: TextAlign.center,
+                style: TextStyle(color: Colors.grey[500]),
+              ),
+              const SizedBox(height: 16),
+              OutlinedButton.icon(
+                onPressed: () {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('请在系统设置 > 应用管理 > 特殊权限 > 通知访问权限中开启')),
+                  );
+                },
+                icon: const Icon(Icons.settings),
+                label: const Text('去设置'),
+              ),
+            ],
+          ),
         ),
       );
     }

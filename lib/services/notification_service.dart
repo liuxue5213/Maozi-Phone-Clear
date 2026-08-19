@@ -1,12 +1,35 @@
+/// 通知服务
+/// 
+/// 注意：读取通知需要 NotificationListenerService 权限
+/// 用户需要在系统设置中手动开启通知访问权限
 class NotificationService {
+  /// 获取通知列表
+  /// 
+  /// 由于 Android 权限限制，普通应用无法直接读取通知
+  /// 需要 NotificationListenerService 或用户手动开启通知访问权限
   Future<List<NotificationItem>> getNotifications() async {
-    // 注意：读取通知需要 NotificationListenerService，普通应用无法直接获取
-    // 这里返回空列表，提示用户需要特殊权限
+    // TODO: 实现 NotificationListenerService
+    // 需要创建 NotificationListenerService 子类并在 AndroidManifest.xml 中注册
     return [];
   }
 
+  /// 清除选中的通知
   Future<int> clearNotifications(List<NotificationItem> items) async {
+    // TODO: 实现通知清除
+    // 需要 NotificationListenerService 权限
     return 0;
+  }
+
+  /// 检查是否有通知访问权限
+  Future<bool> hasPermission() async {
+    // TODO: 检查 NotificationListenerService 是否已授权
+    return false;
+  }
+
+  /// 请求通知访问权限（跳转到系统设置）
+  Future<void> requestPermission() async {
+    // TODO: 跳转到系统通知访问设置页面
+    // 需要 platform channel 调用
   }
 }
 
