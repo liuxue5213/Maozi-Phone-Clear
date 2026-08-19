@@ -1,4 +1,3 @@
-import '../widgets/file_preview_dialog.dart';
 import 'package:flutter/material.dart';
 import '../models/duplicate_file.dart';
 import '../services/duplicate_scanner.dart';
@@ -16,7 +15,6 @@ class _DuplicateFilesScreenState extends State<DuplicateFilesScreen> {
   List<DuplicateGroup> _groups = [];
   bool _isScanning = false;
   bool _isCleaning = false;
-  double _progress = 0.0;
 
   @override
   void initState() {
@@ -50,7 +48,6 @@ class _DuplicateFilesScreenState extends State<DuplicateFilesScreen> {
     int freed = 0; await _scanner.deleteDuplicates(allCleanable); freed = allCleanable.fold(0, (s, f) => s + f.sizeBytes);
     for (int i = 0; i < allCleanable.length; i++) {
       await Future.delayed(const Duration(milliseconds: 50));
-      setState(() => _progress = (i + 1) / allCleanable.length);
     }
 
     // 重新扫描
@@ -67,7 +64,6 @@ class _DuplicateFilesScreenState extends State<DuplicateFilesScreen> {
 
     setState(() {
       _isCleaning = false;
-      _progress = 0;
     });
   }
 

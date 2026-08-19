@@ -232,7 +232,7 @@ class _VideoCompressionScreenState extends State<VideoCompressionScreen> {
   }
 
   Widget _buildSummary() {
-    final selectedCount = _videos.where((v) => v.isSelected).length;
+    _videos.where((v) => v.isSelected).length;
     final totalSize = _videos.fold<int>(0, (sum, v) => sum + v.originalSizeBytes);
 
     return Container(

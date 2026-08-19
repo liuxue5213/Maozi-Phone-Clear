@@ -155,7 +155,6 @@ class _AppManagerScreenState extends State<AppManagerScreen> {
   Widget _buildSummaryBar() {
     final userApps = _apps.where((a) => a.type == AppType.user).length;
     final preApps = _apps.where((a) => a.type == AppType.preinstalled).length;
-    final totalSize = _apps.fold<int>(0, (sum, a) => sum + a.totalSizeBytes);
     final totalCache = _apps.fold<int>(0, (sum, a) => sum + a.cacheBytes);
 
     return Container(

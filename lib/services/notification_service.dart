@@ -1,5 +1,3 @@
-import 'dart:io';
-
 class NotificationService {
   Future<List<NotificationItem>> getNotifications() async {
     // 注意：读取通知需要 NotificationListenerService，普通应用无法直接获取

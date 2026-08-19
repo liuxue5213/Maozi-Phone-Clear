@@ -121,12 +121,10 @@ class CleanProvider extends ChangeNotifier {
     notifyListeners();
 
     final items = List<JunkItem>.from(selectedItems);
-    int cleaned = 0;
 
     for (int i = 0; i < items.length; i++) {
       // 模拟每个文件的清理
       await Future.delayed(const Duration(milliseconds: 30));
-      cleaned += items[i].sizeBytes;
       _progress = (i + 1) / items.length;
       _statusMessage = '清理中... ${((i + 1) / items.length * 100).toInt()}%';
       notifyListeners();

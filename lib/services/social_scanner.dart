@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'dart:math';
 
 class SocialScanner {
   Future<Map<SocialApp, Map<SocialCacheType, List<SocialCacheItem>>>> scanSocialApps() async {

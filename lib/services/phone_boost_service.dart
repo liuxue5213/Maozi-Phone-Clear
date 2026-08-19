@@ -12,7 +12,6 @@ class PhoneBoostService {
           try {
             final statFile = File('${entity.path}/stat');
             if (!await statFile.exists()) continue;
-            final stat = await statFile.stat();
             final statusFile = File('${entity.path}/status');
             int memKb = 0;
             String name = pid.toString();

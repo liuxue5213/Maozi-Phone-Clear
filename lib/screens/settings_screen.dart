@@ -27,8 +27,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Future<void> _loadData() async {
     final config = await _scheduledService.getConfig();
     final items = await _recycleBinService.getItems();
-    final history = await _scheduledService.getCleanupHistory();
-    final totalCleaned = await _scheduledService.getTotalCleanedBytes();
 
     setState(() {
       _config = config;

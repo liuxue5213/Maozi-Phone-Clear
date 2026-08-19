@@ -163,7 +163,7 @@ void main() {
 
   group('VideoInfo 数据模型测试', () {
     test('视频压缩后大小计算正确', () {
-      final video = VideoInfo(
+      VideoInfo(
         path: '/test/video.mp4',
         name: 'video.mp4',
         originalSizeBytes: 100 * 1024 * 1024,
@@ -173,7 +173,6 @@ void main() {
         bitrate: 10000,
         codec: 'H.264',
       );
-
     });
   });
 
@@ -272,9 +271,7 @@ void main() {
 
     test('社交应用扫描返回结果', () async {
       final scanner = SocialScanner();
-      final result = await scanner.scanSocialApps();
-      // 测试环境可能无微信
-      // 测试环境可能无QQ
+      await scanner.scanSocialApps();
     });
 
     test('应用管理扫描返回应用列表', () async {
@@ -298,8 +295,7 @@ void main() {
 
     test('通知服务返回通知列表', () async {
       final service = NotificationService();
-      final notifications = await service.getNotifications();
-      // 通知需要系统权限，测试环境返回空
+      await service.getNotifications();
     });
 
     test('手机加速服务返回进程列表', () async {

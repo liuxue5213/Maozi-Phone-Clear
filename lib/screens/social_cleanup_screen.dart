@@ -14,7 +14,6 @@ class _SocialCleanupScreenState extends State<SocialCleanupScreen> {
   Map<SocialApp, Map<SocialCacheType, List<SocialCacheItem>>> _data = {};
   bool _isScanning = false;
   bool _isCleaning = false;
-  double _progress = 0.0;
 
   @override
   void initState() {
@@ -72,13 +71,11 @@ class _SocialCleanupScreenState extends State<SocialCleanupScreen> {
 
     setState(() {
       _isCleaning = true;
-      _progress = 0.0;
     });
 
     int freed = 0; await _scanner.deleteSocialCache(selected); freed = selected.fold(0, (s, c) => s + c.sizeBytes);
     for (int i = 0; i < selected.length; i++) {
       await Future.delayed(const Duration(milliseconds: 20));
-      setState(() => _progress = (i + 1) / selected.length);
     }
 
     // 重新扫描
@@ -95,7 +92,6 @@ class _SocialCleanupScreenState extends State<SocialCleanupScreen> {
 
     setState(() {
       _isCleaning = false;
-      _progress = 0.0;
     });
   }
 

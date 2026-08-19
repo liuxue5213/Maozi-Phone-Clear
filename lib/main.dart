@@ -4,7 +4,6 @@ import 'providers/clean_provider.dart';
 import 'screens/scan_screen.dart';
 import 'screens/select_screen.dart';
 import 'screens/clean_screen.dart';
-import 'screens/storage_analysis_screen.dart';
 import 'screens/duplicate_files_screen.dart';
 import 'screens/large_files_screen.dart';
 import 'screens/image_cleanup_screen.dart';

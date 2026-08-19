@@ -1,4 +1,3 @@
-import '../widgets/file_preview_dialog.dart';
 import 'package:flutter/material.dart';
 import '../models/large_file.dart';
 import '../services/large_file_scanner.dart';
