@@ -24,28 +24,11 @@ class VideoCompressorService {
         }
       } catch (_) {}
     }
-    
-    // 如果没有扫描到视频，添加演示数据
-    if (videos.isEmpty) {
-      videos.addAll(_getDemoVideos());
-    }
-    
     return videos;
   }
 
   Future<int> compressVideos(List<VideoInfo> videos) async {
     int total = 0; for (final v in videos) { total += (v.originalSizeBytes * 0.3).toInt(); } return total;
-  }
-
-  /// 演示数据：视频文件
-  List<VideoInfo> _getDemoVideos() {
-    return [
-      VideoInfo(path: '/storage/emulated/0/DCIM/Camera/video_20240815_001.mp4', name: 'video_20240815_001.mp4', originalSizeBytes: 256789012, durationSeconds: 185, width: 1920, height: 1080, bitrate: 12000, codec: '.MP4'),
-      VideoInfo(path: '/storage/emulated/0/DCIM/Camera/video_20240814_001.mp4', name: 'video_20240814_001.mp4', originalSizeBytes: 189234567, durationSeconds: 120, width: 1920, height: 1080, bitrate: 10000, codec: '.MP4'),
-      VideoInfo(path: '/storage/emulated/0/Movies/video_20240813_001.mp4', name: 'video_20240813_001.mp4', originalSizeBytes: 345678901, durationSeconds: 240, width: 1920, height: 1080, bitrate: 15000, codec: '.MP4'),
-      VideoInfo(path: '/storage/emulated/0/Download/video_20240812_001.mp4', name: 'video_20240812_001.mp4', originalSizeBytes: 123456789, durationSeconds: 90, width: 1280, height: 720, bitrate: 8000, codec: '.MP4'),
-      VideoInfo(path: '/storage/emulated/0/DCIM/Camera/video_20240811_001.mp4', name: 'video_20240811_001.mp4', originalSizeBytes: 234567890, durationSeconds: 150, width: 1920, height: 1080, bitrate: 11000, codec: '.MP4'),
-    ];
   }
 }
 

@@ -456,7 +456,7 @@ void main() {
     testWidgets('首页显示开始扫描按钮', (tester) async {
       await tester.pumpWidget(const MyApp());
       expect(find.text('开始扫描'), findsOneWidget);
-      expect(find.text('猫子手机清理'), findsWidgets);
+      expect(find.text('帽子垃圾清理'), findsWidgets);
     });
 
     testWidgets('点击开始扫描后进入扫描页面', (tester) async {
