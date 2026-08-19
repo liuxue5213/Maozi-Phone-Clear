@@ -8,12 +8,9 @@ class WhitelistService {
   static const String _recycleBinKey = 'recycle_bin';
 
   /// 默认保护目录（系统关键路径）
+  /// 注意：不包含 Android/data 等正常清理目录，避免与清理功能冲突
   static const List<String> protectedPaths = [
-    '/storage/emulated/0/Android/data',
-    '/storage/emulated/0/Android/obb',
-    '/storage/emulated/0/DCIM/Camera',  // 相机原片保护
-    '/storage/emulated/0/Pictures',     // 图片目录
-    '/storage/emulated/0/Download',     // 下载目录
+    '/storage/emulated/0/Android/obb',  // 游戏数据包，清理会导致游戏无法运行
     '/data',
     '/system',
   ];

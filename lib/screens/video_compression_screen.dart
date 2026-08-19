@@ -68,12 +68,13 @@ class _VideoCompressionScreenState extends State<VideoCompressionScreen> {
       _progress = 0.0;
     });
 
-    int saved = 0; saved = await _service.compressVideos(selected);
+    int saved = 0;
     for (int i = 0; i < selected.length; i++) {
       await Future.delayed(const Duration(milliseconds: 300));
       saved += selected[i].savedBytes(_quality.index + 1);
       setState(() => _progress = (i + 1) / selected.length);
     }
+    await _service.compressVideos(selected);
 
     setState(() {
       _isCompressing = false;
@@ -232,7 +233,7 @@ class _VideoCompressionScreenState extends State<VideoCompressionScreen> {
   }
 
   Widget _buildSummary() {
-    _videos.where((v) => v.isSelected).length;
+    final selectedCount = _videos.where((v) => v.isSelected).length;
     final totalSize = _videos.fold<int>(0, (sum, v) => sum + v.originalSizeBytes);
 
     return Container(
@@ -252,9 +253,9 @@ class _VideoCompressionScreenState extends State<VideoCompressionScreen> {
         children: [
           Column(
             children: [
-              const Text(
-                '${0}', // Placeholder
-                style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+              Text(
+                '$selectedCount',
+                style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
               ),
               Text('${_videos.length} 个视频', style: const TextStyle(color: Colors.white70, fontSize: 12)),
             ],

@@ -73,7 +73,7 @@ class _SocialCleanupScreenState extends State<SocialCleanupScreen> {
       _isCleaning = true;
     });
 
-    int freed = 0; await _scanner.deleteSocialCache(selected); freed = selected.fold(0, (s, c) => s + c.sizeBytes);
+    final freed = await _scanner.deleteSocialCache(selected);
     for (int i = 0; i < selected.length; i++) {
       await Future.delayed(const Duration(milliseconds: 20));
     }
