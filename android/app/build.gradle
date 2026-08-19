@@ -33,19 +33,6 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
-
-    flavorDimensions "default"
-    productFlavors {
-        dev {
-            dimension "default"
-            applicationIdSuffix = ".dev"
-            resValue "string", "app_name", "猫子清理Dev"
-        }
-        prod {
-            dimension "default"
-            resValue "string", "app_name", "猫子手机清理"
-        }
-    }
 }
 
 flutter {
