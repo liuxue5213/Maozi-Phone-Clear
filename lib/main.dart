@@ -20,6 +20,7 @@ import 'screens/antivirus_screen.dart';
 import 'screens/database_optimize_screen.dart';
 import 'screens/storage_analysis_screen.dart';
 import 'widgets/permission_gate.dart';
+import 'services/system_clean_service.dart';
 
 void main() {
   runApp(const MyApp());
@@ -165,98 +166,98 @@ class HomeTab extends StatelessWidget {
   }
 
   Widget _buildIdleView(BuildContext context, CleanProvider provider) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Container(
-            width: 140,
-            height: 140,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  const Color(0xFF2196F3),
-                  const Color(0xFF2196F3).withOpacity(0.7),
+    return SingleChildScrollView(
+      child: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const SizedBox(height: 40),
+            Container(
+              width: 120,
+              height: 120,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    const Color(0xFF2196F3),
+                    const Color(0xFF2196F3).withOpacity(0.7),
+                  ],
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: const Color(0xFF2196F3).withOpacity(0.3),
+                    blurRadius: 20,
+                    offset: const Offset(0, 8),
+                  ),
                 ],
               ),
-              boxShadow: [
-                BoxShadow(
-                  color: const Color(0xFF2196F3).withOpacity(0.3),
-                  blurRadius: 20,
-                  offset: const Offset(0, 8),
-                ),
-              ],
-            ),
-            child: const Icon(
-              Icons.phone_android_rounded,
-              size: 70,
-              color: Colors.white,
-            ),
-          ),
-          const SizedBox(height: 24),
-          const Text(
-            '帽子垃圾清理',
-            style: TextStyle(
-              fontSize: 28,
-              fontWeight: FontWeight.bold,
-              color: Color(0xFF333333),
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            '一键扫描手机垃圾，释放存储空间',
-            style: TextStyle(fontSize: 15, color: Colors.grey[600]),
-          ),
-          const SizedBox(height: 48),
-          FilledButton(
-            onPressed: () => provider.startScan(),
-            style: FilledButton.styleFrom(
-              backgroundColor: const Color(0xFF2196F3),
-              padding: const EdgeInsets.symmetric(horizontal: 60, vertical: 16),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(30),
-              ),
-              elevation: 4,
-            ),
-            child: const Text(
-              '开始扫描',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w600,
+              child: const Icon(
+                Icons.phone_android_rounded,
+                size: 60,
                 color: Colors.white,
               ),
             ),
-          ),
-          const SizedBox(height: 16),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 40),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                _buildFeatureIcon(Icons.search, '智能扫描'),
-                _buildFeatureIcon(Icons.checklist, '安全勾选'),
-                _buildFeatureIcon(Icons.delete_sweep, '深度清理'),
-              ],
+            const SizedBox(height: 20),
+            const Text(
+              '帽子垃圾清理',
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+                color: Color(0xFF333333),
+              ),
             ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildFeatureIcon(IconData icon, String label) {
-    return Column(
-      children: [
-        Icon(icon, size: 24, color: const Color(0xFF2196F3)),
-        const SizedBox(height: 4),
-        Text(
-          label,
-          style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+            const SizedBox(height: 8),
+            Text(
+              '一键扫描手机垃圾，释放存储空间',
+              style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+            ),
+            const SizedBox(height: 32),
+            FilledButton(
+              onPressed: () => provider.startScan(),
+              style: FilledButton.styleFrom(
+                backgroundColor: const Color(0xFF2196F3),
+                padding: const EdgeInsets.symmetric(horizontal: 48, vertical: 14),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(30),
+                ),
+                elevation: 4,
+              ),
+              child: const Text(
+                '开始扫描',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.white,
+                ),
+              ),
+            ),
+            const SizedBox(height: 10),
+            OutlinedButton.icon(
+              onPressed: () => SystemCleanService.openStorageSettings(),
+              icon: const Icon(Icons.settings_outlined, size: 16),
+              label: const Text('系统存储设置'),
+              style: OutlinedButton.styleFrom(
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(24),
+                ),
+              ),
+            ),
+            const SizedBox(height: 8),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 40),
+              child: Text(
+                'Android 11+ 限制：应用无法清理其他应用缓存\n点击上方按钮跳转到系统设置手动清理',
+                style: TextStyle(fontSize: 10, color: Colors.grey[500]),
+                textAlign: TextAlign.center,
+              ),
+            ),
+            const SizedBox(height: 20),
+          ],
         ),
-      ],
+      ),
     );
   }
 }
