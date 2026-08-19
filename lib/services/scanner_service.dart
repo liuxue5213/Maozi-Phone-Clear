@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:path/path.dart' as p;
+import 'package:photo_manager/photo_manager.dart';
 import '../models/junk_item.dart';
 
 /// 扫描结果
@@ -32,17 +33,28 @@ class ScannerService {
     final List<String> scannedDirs = [];
     int totalFilesScanned = 0;
 
-    // 要扫描的目录
+    // 1. 使用 MediaStore 扫描媒体文件
+    try {
+      final mediaResult = await _scanMediaFiles();
+      allItems.addAll(mediaResult.items);
+      totalFilesScanned += mediaResult.fileCount;
+      if (mediaResult.fileCount > 0) {
+        scannedDirs.add('媒体文件 (${mediaResult.fileCount} 个)');
+      }
+    } catch (e) {
+      errors.add('媒体文件扫描失败: $e');
+    }
+
+    // 2. 扫描文件系统目录
     final dirsToScan = [
-      '/storage/emulated/0/Android/data',
-      '/storage/emulated/0/Android/cache',
-      '/storage/emulated/0/cache',
-      '/storage/emulated/0/tmp',
       '/storage/emulated/0/Download',
       '/storage/emulated/0/DCIM',
       '/storage/emulated/0/Pictures',
       '/storage/emulated/0/Movies',
       '/storage/emulated/0/Documents',
+      '/storage/emulated/0/Music',
+      '/storage/emulated/0/Android/data',
+      '/storage/emulated/0/Android/cache',
     ];
 
     for (final dirPath in dirsToScan) {
@@ -56,7 +68,9 @@ class ScannerService {
       try {
         int filesInDir = 0;
         await _scanDir(dir, allItems, 0, filesInDir);
-        scannedDirs.add('$dirPath ($filesInDir 个文件)');
+        if (filesInDir > 0) {
+          scannedDirs.add('$dirPath ($filesInDir 个文件)');
+        }
         totalFilesScanned += filesInDir;
       } catch (e) {
         errors.add('无权限访问: $dirPath');
@@ -79,8 +93,77 @@ class ScannerService {
     );
   }
 
+  /// 使用 MediaStore 扫描媒体文件
+  Future<_MediaScanResult> _scanMediaFiles() async {
+    final List<JunkItem> items = [];
+    int fileCount = 0;
+
+    // 请求权限
+    final ps = await PhotoManager.requestPermissionExtend();
+    if (!ps.isAuth && !ps.hasAccess) {
+      return _MediaScanResult(items: items, fileCount: 0);
+    }
+
+    // 扫描图片
+    final imagePaths = await PhotoManager.getAssetPathList(
+      type: RequestType.image,
+      onlyAll: false,
+    );
+    for (final path in imagePaths) {
+      final assets = await path.getAssetListPaged(page: 0, size: 1000);
+      for (final asset in assets) {
+        try {
+          final file = await asset.file;
+          if (file == null) continue;
+          final stat = await file.stat();
+          
+          // 大图片可能是垃圾（超过5MB）
+          if (stat.size > 5 * 1024 * 1024) {
+            items.add(JunkItem(
+              path: file.path,
+              name: asset.title ?? file.path.split('/').last,
+              sizeBytes: stat.size,
+              category: JunkCategory.largeFile,
+              lastModified: asset.createDateTime,
+            ));
+            fileCount++;
+          }
+        } catch (e) {}
+      }
+    }
+
+    // 扫描视频（所有视频都算，因为占用空间大）
+    final videoPaths = await PhotoManager.getAssetPathList(
+      type: RequestType.video,
+      onlyAll: false,
+    );
+    for (final path in videoPaths) {
+      final assets = await path.getAssetListPaged(page: 0, size: 1000);
+      for (final asset in assets) {
+        try {
+          final file = await asset.file;
+          if (file == null) continue;
+          final stat = await file.stat();
+          
+          // 视频文件（超过50MB算大文件）
+          if (stat.size > 50 * 1024 * 1024) {
+            items.add(JunkItem(
+              path: file.path,
+              name: asset.title ?? file.path.split('/').last,
+              sizeBytes: stat.size,
+              category: JunkCategory.largeFile,
+              lastModified: asset.createDateTime,
+            ));
+            fileCount++;
+          }
+        } catch (e) {}
+      }
+    }
+
+    return _MediaScanResult(items: items, fileCount: fileCount);
+  }
+
   Future<void> _scanDir(Directory dir, List<JunkItem> items, int depth, int fileCount) async {
-    // 限制递归深度，避免栈溢出
     if (depth >= _maxDepth) return;
     
     await for (final entity in dir.list(followLinks: false)) {
@@ -92,7 +175,7 @@ class ScannerService {
           
           JunkCategory? category;
           
-          // 分类判断
+          // 分类判断 - 扩展更多类型
           if (path.contains('/cache/') || path.contains('/caches/')) {
             category = JunkCategory.cache;
           } else if (ext == '.log' || path.contains('/logs/')) {
@@ -101,8 +184,11 @@ class ScannerService {
             category = JunkCategory.temp;
           } else if (path.contains('/android/data/')) {
             category = JunkCategory.residual;
-          } else if ((ext == '.apk') && path.contains('/download')) {
+          } else if (ext == '.apk') {
             category = JunkCategory.apk;
+          } else if (stat.size > 100 * 1024 * 1024) {
+            // 大于100MB的文件算大文件
+            category = JunkCategory.largeFile;
           }
           
           if (category != null) {
@@ -144,4 +230,10 @@ class ScannerService {
     }
     return cleanedBytes;
   }
+}
+
+class _MediaScanResult {
+  final List<JunkItem> items;
+  final int fileCount;
+  _MediaScanResult({required this.items, required this.fileCount});
 }
