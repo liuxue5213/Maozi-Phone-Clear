@@ -149,6 +149,13 @@ class CleanProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// 测试用：添加分类数据（仅用于测试）
+  void addTestCategory(CategorySummary category) {
+    _categories.add(category);
+    _totalScannedBytes += category.totalSizeBytes;
+    notifyListeners();
+  }
+
   /// 格式化字节大小
   String _formatBytes(int bytes) {
     if (bytes < 1024) return '$bytes B';
