@@ -30,6 +30,7 @@ class _DuplicateFilesScreenState extends State<DuplicateFilesScreen> {
 
     final groups = await _scanner.scanDuplicates();
 
+    if (!mounted) return;
     setState(() {
       _groups = groups;
       _isScanning = false;

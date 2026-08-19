@@ -28,6 +28,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final config = await _scheduledService.getConfig();
     final items = await _recycleBinService.getItems();
 
+    if (!mounted) return;
     setState(() {
       _config = config;
       _recycleBinItems = items;

@@ -33,6 +33,7 @@ class _ImageCleanupScreenState extends State<ImageCleanupScreen> {
     final images = await _scanner.scanImages();
     final groups = await _scanner.scanSimilarImages();
 
+    if (!mounted) return;
     setState(() {
       _images = images;
       _similarGroups = groups;

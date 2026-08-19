@@ -29,6 +29,7 @@ class _SocialCleanupScreenState extends State<SocialCleanupScreen> {
 
     final result = await _scanner.scanSocialApps();
 
+    if (!mounted) return;
     setState(() {
       _data = result;
       _isScanning = false;

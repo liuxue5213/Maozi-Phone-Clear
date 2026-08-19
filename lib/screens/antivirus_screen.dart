@@ -26,11 +26,13 @@ class _AntivirusScreenState extends State<AntivirusScreen> {
     // 模拟扫描进度
     for (int i = 1; i <= 20; i++) {
       await Future.delayed(const Duration(milliseconds: 150));
+      if (!mounted) return;
       setState(() => _scanProgress = i / 20);
     }
 
     final result = await _service.scan();
 
+    if (!mounted) return;
     setState(() {
       _scanResult = result;
       _isScanning = false;

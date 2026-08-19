@@ -24,6 +24,8 @@ class _PrivacyCleanupScreenState extends State<PrivacyCleanupScreen> {
   Future<void> _loadData() async {
     setState(() => _isLoading = true);
     final items = await _service.scanPrivacy();
+
+    if (!mounted) return;
     setState(() {
       _items = items;
       _isLoading = false;

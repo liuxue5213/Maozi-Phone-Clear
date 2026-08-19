@@ -64,6 +64,7 @@ class _PhoneBoostScreenState extends State<PhoneBoostScreen>
     _animController.stop();
     _animController.reset();
 
+    if (!mounted) return;
     // 移除已清理的进程
     setState(() {
       _processes.removeWhere((p) => p.isSelected && p.canKill);
@@ -73,6 +74,7 @@ class _PhoneBoostScreenState extends State<PhoneBoostScreen>
 
     // 刷新内存信息
     final memInfo = await _service.getMemoryInfo();
+    if (!mounted) return;
     setState(() => _memoryInfo = memInfo);
   }
 

@@ -30,6 +30,8 @@ class _DatabaseOptimizeScreenState extends State<DatabaseOptimizeScreen> {
     });
 
     final items = await _service.scanDatabases();
+
+    if (!mounted) return;
     setState(() {
       _items = items;
       _isLoading = false;

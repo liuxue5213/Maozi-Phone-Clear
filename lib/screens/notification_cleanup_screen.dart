@@ -30,6 +30,8 @@ class _NotificationCleanupScreenState extends State<NotificationCleanupScreen> {
     });
 
     final notifications = await _service.getNotifications();
+
+    if (!mounted) return;
     setState(() {
       _notifications = notifications;
       _isLoading = false;
@@ -43,6 +45,7 @@ class _NotificationCleanupScreenState extends State<NotificationCleanupScreen> {
     setState(() => _isClearing = true);
     await _service.clearNotifications(selected);
 
+    if (!mounted) return;
     setState(() {
       _notifications.removeWhere((n) => n.isSelected);
       _isClearing = false;

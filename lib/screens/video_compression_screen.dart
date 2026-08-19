@@ -26,6 +26,8 @@ class _VideoCompressionScreenState extends State<VideoCompressionScreen> {
   Future<void> _loadVideos() async {
     setState(() => _isLoading = true);
     final videos = await _service.scanVideos();
+
+    if (!mounted) return;
     setState(() {
       _videos = videos;
       _isLoading = false;

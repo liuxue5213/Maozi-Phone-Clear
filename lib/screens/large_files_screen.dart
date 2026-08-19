@@ -34,6 +34,7 @@ class _LargeFilesScreenState extends State<LargeFilesScreen> {
       minSizeBytes: _minSize * 1024 * 1024,
     );
 
+    if (!mounted) return;
     setState(() {
       _files = files;
       _isScanning = false;

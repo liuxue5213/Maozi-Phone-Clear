@@ -32,6 +32,7 @@ class _CpuCoolerScreenState extends State<CpuCoolerScreen> {
     final temp = await _service.getCpuTemperature();
     final apps = await _service.getHotApps();
 
+    if (!mounted) return;
     setState(() {
       _cpuTemp = temp;
       _hotApps = apps;
@@ -46,6 +47,7 @@ class _CpuCoolerScreenState extends State<CpuCoolerScreen> {
     setState(() => _isCooling = true);
     final result = await _service.coolDown(selected);
 
+    if (!mounted) return;
     setState(() {
       _cpuTemp = result.temperatureAfter;
       _coolResult = result;

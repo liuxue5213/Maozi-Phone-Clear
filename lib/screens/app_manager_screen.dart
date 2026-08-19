@@ -25,6 +25,8 @@ class _AppManagerScreenState extends State<AppManagerScreen> {
   Future<void> _loadApps() async {
     setState(() => _isLoading = true);
     final apps = await _service.scanApps();
+
+    if (!mounted) return;
     setState(() {
       _apps = apps;
       _isLoading = false;
