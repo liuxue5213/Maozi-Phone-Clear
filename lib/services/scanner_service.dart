@@ -66,12 +66,13 @@ class ScannerService {
       }
       
       try {
-        int filesInDir = 0;
-        await _scanDir(dir, allItems, 0, filesInDir);
-        if (filesInDir > 0) {
-          scannedDirs.add('$dirPath ($filesInDir 个文件)');
+        final counter = [0]; // 使用列表实现引用传递
+        await _scanDir(dir, allItems, 0, counter);
+        final fileCount = counter[0];
+        if (fileCount > 0) {
+          scannedDirs.add('$dirPath ($fileCount 个文件)');
         }
-        totalFilesScanned += filesInDir;
+        totalFilesScanned += fileCount;
       } catch (e) {
         errors.add('无权限访问: $dirPath');
       }
@@ -132,7 +133,7 @@ class ScannerService {
       }
     }
 
-    // 扫描视频（所有视频都算，因为占用空间大）
+    // 扫描视频（超过50MB算大文件）
     final videoPaths = await PhotoManager.getAssetPathList(
       type: RequestType.video,
       onlyAll: false,
@@ -145,7 +146,6 @@ class ScannerService {
           if (file == null) continue;
           final stat = await file.stat();
           
-          // 视频文件（超过50MB算大文件）
           if (stat.size > 50 * 1024 * 1024) {
             items.add(JunkItem(
               path: file.path,
@@ -163,7 +163,7 @@ class ScannerService {
     return _MediaScanResult(items: items, fileCount: fileCount);
   }
 
-  Future<void> _scanDir(Directory dir, List<JunkItem> items, int depth, int fileCount) async {
+  Future<void> _scanDir(Directory dir, List<JunkItem> items, int depth, List<int> counter) async {
     if (depth >= _maxDepth) return;
     
     await for (final entity in dir.list(followLinks: false)) {
@@ -175,7 +175,7 @@ class ScannerService {
           
           JunkCategory? category;
           
-          // 分类判断 - 扩展更多类型
+          // 分类判断
           if (path.contains('/cache/') || path.contains('/caches/')) {
             category = JunkCategory.cache;
           } else if (ext == '.log' || path.contains('/logs/')) {
@@ -187,7 +187,6 @@ class ScannerService {
           } else if (ext == '.apk') {
             category = JunkCategory.apk;
           } else if (stat.size > 100 * 1024 * 1024) {
-            // 大于100MB的文件算大文件
             category = JunkCategory.largeFile;
           }
           
@@ -199,14 +198,14 @@ class ScannerService {
               category: category,
               lastModified: stat.modified,
             ));
-            fileCount++;
+            counter[0]++;
           }
         } catch (e) {
           // 跳过无权限文件
         }
       } else if (entity is Directory) {
         try {
-          await _scanDir(entity, items, depth + 1, fileCount);
+          await _scanDir(entity, items, depth + 1, counter);
         } catch (e) {
           // 跳过无权限目录
         }
