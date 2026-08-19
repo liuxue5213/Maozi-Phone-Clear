@@ -19,6 +19,8 @@ import 'screens/cpu_cooler_screen.dart';
 import 'screens/antivirus_screen.dart';
 import 'screens/database_optimize_screen.dart';
 import 'screens/storage_analysis_screen.dart';
+import 'services/permission_service.dart';
+import 'widgets/permission_request_widget.dart';
 
 void main() {
   runApp(const MyApp());
@@ -116,8 +118,31 @@ class _TabItem {
 }
 
 /// 首页 Tab - 垃圾清理主流程
-class HomeTab extends StatelessWidget {
+class HomeTab extends StatefulWidget {
   const HomeTab({super.key});
+
+  @override
+  State<HomeTab> createState() => _HomeTabState();
+}
+
+class _HomeTabState extends State<HomeTab> {
+  bool _hasPermission = true;
+  bool _checkedPermission = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _checkPermission();
+  }
+
+  Future<void> _checkPermission() async {
+    final hasPermission = await PermissionService.hasStoragePermission();
+    if (!mounted) return;
+    setState(() {
+      _hasPermission = hasPermission;
+      _checkedPermission = true;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -143,23 +168,30 @@ class HomeTab extends StatelessWidget {
           ),
         ],
       ),
-      body: Consumer<CleanProvider>(
-        builder: (context, provider, _) {
-          switch (provider.state) {
-            case AppState.idle:
-              return _buildIdleView(context, provider);
-            case AppState.scanning:
-              return const ScanScreen();
-            case AppState.selecting:
-              return SelectScreen(
-                onStartClean: () => provider.startClean(),
-              );
-            case AppState.cleaning:
-            case AppState.done:
-              return const CleanScreen();
-          }
-        },
-      ),
+      body: !_checkedPermission
+          ? const Center(child: CircularProgressIndicator())
+          : !_hasPermission
+              ? PermissionRequestWidget(
+                  customMessage: '为了扫描手机中的垃圾缓存文件，需要授予存储访问权限',
+                  onPermissionGranted: _checkPermission,
+                )
+              : Consumer<CleanProvider>(
+                  builder: (context, provider, _) {
+                    switch (provider.state) {
+                      case AppState.idle:
+                        return _buildIdleView(context, provider);
+                      case AppState.scanning:
+                        return const ScanScreen();
+                      case AppState.selecting:
+                        return SelectScreen(
+                          onStartClean: () => provider.startClean(),
+                        );
+                      case AppState.cleaning:
+                      case AppState.done:
+                        return const CleanScreen();
+                    }
+                  },
+                ),
     );
   }
 
