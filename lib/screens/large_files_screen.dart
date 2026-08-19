@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
-import '../utils/format_utils.dart';import '../models/large_file.dart';
+import '../utils/format_utils.dart';
+import '../models/large_file.dart';
 import '../services/large_file_scanner.dart';
+import '../services/permission_service.dart';
+import '../widgets/permission_request_widget.dart';
 
 /// 大文件管理页面
 class LargeFilesScreen extends StatefulWidget {
@@ -15,13 +18,24 @@ class _LargeFilesScreenState extends State<LargeFilesScreen> {
   List<LargeFileItem> _files = [];
   bool _isScanning = false;
   bool _isCleaning = false;
+  bool _hasPermission = true;
   int _minSize = 50; // MB
   LargeFileType? _filterType;
 
   @override
   void initState() {
     super.initState();
-    _startScan();
+    _checkPermissionAndScan();
+  }
+
+  Future<void> _checkPermissionAndScan() async {
+    final hasPermission = await PermissionService.hasStoragePermission();
+    if (!mounted) return;
+    setState(() => _hasPermission = hasPermission);
+    
+    if (hasPermission) {
+      _startScan();
+    }
   }
 
   Future<void> _startScan() async {
@@ -137,6 +151,17 @@ class _LargeFilesScreenState extends State<LargeFilesScreen> {
   }
 
   Widget _buildBody() {
+    // 如果没有权限，显示权限请求 UI
+    if (!_hasPermission) {
+      return PermissionRequestWidget(
+        customMessage: '为了扫描和管理大文件，需要授予存储访问权限',
+        onPermissionGranted: () {
+          setState(() => _hasPermission = true);
+          _startScan();
+        },
+      );
+    }
+
     if (_isScanning) {
       return Center(
         child: Column(

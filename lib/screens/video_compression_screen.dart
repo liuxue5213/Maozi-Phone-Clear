@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
-import '../utils/format_utils.dart';import '../services/video_compressor_service.dart';
+import '../utils/format_utils.dart';
+import '../services/video_compressor_service.dart';
+import '../services/permission_service.dart';
+import '../widgets/permission_request_widget.dart';
 
 /// 视频压缩页面
 class VideoCompressionScreen extends StatefulWidget {
@@ -14,13 +17,24 @@ class _VideoCompressionScreenState extends State<VideoCompressionScreen> {
   List<VideoInfo> _videos = [];
   bool _isLoading = true;
   bool _isCompressing = false;
+  bool _hasPermission = true;
   double _progress = 0.0;
   VideoQuality _quality = VideoQuality.medium;
 
   @override
   void initState() {
     super.initState();
-    _loadVideos();
+    _checkPermissionAndLoad();
+  }
+
+  Future<void> _checkPermissionAndLoad() async {
+    final hasPermission = await PermissionService.hasStoragePermission();
+    if (!mounted) return;
+    setState(() => _hasPermission = hasPermission);
+    
+    if (hasPermission) {
+      _loadVideos();
+    }
   }
 
   Future<void> _loadVideos() async {
@@ -126,6 +140,17 @@ class _VideoCompressionScreenState extends State<VideoCompressionScreen> {
   }
 
   Widget _buildBody() {
+    // 如果没有权限，显示权限请求 UI
+    if (!_hasPermission) {
+      return PermissionRequestWidget(
+        customMessage: '为了扫描和压缩视频文件，需要授予存储访问权限',
+        onPermissionGranted: () {
+          setState(() => _hasPermission = true);
+          _loadVideos();
+        },
+      );
+    }
+
     if (_isLoading) {
       return const Center(child: CircularProgressIndicator());
     }

@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import '../models/image_file.dart';
 import '../services/image_scanner.dart';
+import '../services/permission_service.dart';
 import '../utils/format_utils.dart';
+import '../widgets/permission_request_widget.dart';
 
 /// 图片清理页面
 class ImageCleanupScreen extends StatefulWidget {
@@ -16,12 +18,23 @@ class _ImageCleanupScreenState extends State<ImageCleanupScreen> {
   Map<ImageCategory, List<ImageFileItem>> _images = {};
   List<SimilarImageGroup> _similarGroups = [];
   bool _isScanning = false;
+  bool _hasPermission = true;
   int _selectedTab = 0; // 0=分类视图, 1=相似图片
 
   @override
   void initState() {
     super.initState();
-    _startScan();
+    _checkPermissionAndScan();
+  }
+
+  Future<void> _checkPermissionAndScan() async {
+    final hasPermission = await PermissionService.hasStoragePermission();
+    if (!mounted) return;
+    setState(() => _hasPermission = hasPermission);
+    
+    if (hasPermission) {
+      _startScan();
+    }
   }
 
   Future<void> _startScan() async {
@@ -132,6 +145,17 @@ class _ImageCleanupScreenState extends State<ImageCleanupScreen> {
   }
 
   Widget _buildBody() {
+    // 如果没有权限，显示权限请求 UI
+    if (!_hasPermission) {
+      return PermissionRequestWidget(
+        customMessage: '为了扫描和清理图片文件，需要授予存储访问权限',
+        onPermissionGranted: () {
+          setState(() => _hasPermission = true);
+          _startScan();
+        },
+      );
+    }
+
     if (_isScanning) {
       return Center(
         child: Column(

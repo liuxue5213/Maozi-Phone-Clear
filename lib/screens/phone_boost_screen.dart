@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import '../services/phone_boost_service.dart';
+import '../services/permission_service.dart';
+import '../widgets/permission_request_widget.dart';
 
 /// 手机加速页面
 class PhoneBoostScreen extends StatefulWidget {
@@ -15,6 +17,7 @@ class _PhoneBoostScreenState extends State<PhoneBoostScreen>
   List<ProcessInfo> _processes = [];
   bool _isLoading = true;
   bool _isBoosting = false;
+  bool _hasPermission = true;
   BoostResult? _boostResult;
   Map<String, int>? _memoryInfo;
   late AnimationController _animController;
@@ -26,13 +29,23 @@ class _PhoneBoostScreenState extends State<PhoneBoostScreen>
       vsync: this,
       duration: const Duration(seconds: 2),
     );
-    _loadData();
+    _checkPermissionAndLoad();
   }
 
   @override
   void dispose() {
     _animController.dispose();
     super.dispose();
+  }
+
+  Future<void> _checkPermissionAndLoad() async {
+    final hasPermission = await PermissionService.hasStoragePermission();
+    if (!mounted) return;
+    setState(() => _hasPermission = hasPermission);
+    
+    if (hasPermission) {
+      _loadData();
+    }
   }
 
   Future<void> _loadData() async {
@@ -44,6 +57,7 @@ class _PhoneBoostScreenState extends State<PhoneBoostScreen>
     final processes = await _service.getRunningProcesses();
     final memInfo = await _service.getMemoryInfo();
 
+    if (!mounted) return;
     setState(() {
       _processes = processes;
       _memoryInfo = memInfo;
@@ -112,6 +126,17 @@ class _PhoneBoostScreenState extends State<PhoneBoostScreen>
   }
 
   Widget _buildBody() {
+    // 如果没有权限，显示权限请求 UI
+    if (!_hasPermission) {
+      return PermissionRequestWidget(
+        customMessage: '为了扫描和加速手机，需要授予存储访问权限',
+        onPermissionGranted: () {
+          setState(() => _hasPermission = true);
+          _loadData();
+        },
+      );
+    }
+
     return Column(
       children: [
         // 内存使用状态

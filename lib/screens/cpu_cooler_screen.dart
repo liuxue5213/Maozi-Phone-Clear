@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import '../services/cpu_cooler_service.dart';
+import '../services/permission_service.dart';
+import '../widgets/permission_request_widget.dart';
 
 /// CPU降温页面
 class CpuCoolerScreen extends StatefulWidget {
@@ -15,12 +17,23 @@ class _CpuCoolerScreenState extends State<CpuCoolerScreen> {
   List<HotApp> _hotApps = [];
   bool _isLoading = true;
   bool _isCooling = false;
+  bool _hasPermission = true;
   CoolResult? _coolResult;
 
   @override
   void initState() {
     super.initState();
-    _loadData();
+    _checkPermissionAndLoad();
+  }
+
+  Future<void> _checkPermissionAndLoad() async {
+    final hasPermission = await PermissionService.hasStoragePermission();
+    if (!mounted) return;
+    setState(() => _hasPermission = hasPermission);
+    
+    if (hasPermission) {
+      _loadData();
+    }
   }
 
   Future<void> _loadData() async {
@@ -78,9 +91,17 @@ class _CpuCoolerScreenState extends State<CpuCoolerScreen> {
             ),
         ],
       ),
-      body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : Column(
+      body: !_hasPermission
+          ? PermissionRequestWidget(
+              customMessage: '为了检测CPU温度和发热应用，需要授予存储访问权限',
+              onPermissionGranted: () {
+                setState(() => _hasPermission = true);
+                _loadData();
+              },
+            )
+          : _isLoading
+              ? const Center(child: CircularProgressIndicator())
+              : Column(
               children: [
                 // 温度显示
                 _buildTemperatureCard(status),
