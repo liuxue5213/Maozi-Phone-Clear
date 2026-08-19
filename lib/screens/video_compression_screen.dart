@@ -68,7 +68,7 @@ class _VideoCompressionScreenState extends State<VideoCompressionScreen> {
       _progress = 0.0;
     });
 
-    int saved = 0;
+    int saved = 0; saved = await _service.compressVideos(selected);
     for (int i = 0; i < selected.length; i++) {
       await Future.delayed(const Duration(milliseconds: 300));
       saved += selected[i].savedBytes(_quality.index + 1);

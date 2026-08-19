@@ -46,7 +46,7 @@ class _DuplicateFilesScreenState extends State<DuplicateFilesScreen> {
 
     setState(() => _isCleaning = true);
 
-    int freed = 0;
+    int freed = 0; await _scanner.deleteDuplicates(allCleanable); freed = allCleanable.fold(0, (s, f) => s + f.sizeBytes);
     for (int i = 0; i < allCleanable.length; i++) {
       await Future.delayed(const Duration(milliseconds: 50));
       freed += allCleanable[i].sizeBytes;
