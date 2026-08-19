@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:maozi_phone_clear/main.dart';
 import 'package:maozi_phone_clear/providers/clean_provider.dart';
@@ -124,11 +125,11 @@ void main() {
 
   group('LargeFile 数据模型测试', () {
     test('文件类型从扩展名识别正确', () {
-      expect(LargeFileType.fromExtension('.mp4'), LargeFileType.video);
-      expect(LargeFileType.fromExtension('.MP4'), LargeFileType.video);
-      expect(LargeFileType.fromExtension('.mp3'), LargeFileType.audio);
-      expect(LargeFileType.fromExtension('.apk'), LargeFileType.apk);
-      expect(LargeFileType.fromExtension('.xyz'), LargeFileType.other);
+      expect(getFileTypeFromExtension('.mp4'), LargeFileType.video);
+      expect(getFileTypeFromExtension('.MP4'), LargeFileType.video);
+      expect(getFileTypeFromExtension('.mp3'), LargeFileType.audio);
+      expect(getFileTypeFromExtension('.apk'), LargeFileType.apk);
+      expect(getFileTypeFromExtension('.xyz'), LargeFileType.other);
     });
   });
 

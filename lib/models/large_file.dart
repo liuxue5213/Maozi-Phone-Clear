@@ -11,6 +11,24 @@ enum LargeFileType {
   other,
 }
 
+/// 根据扩展名获取文件类型
+LargeFileType getFileTypeFromExtension(String ext) {
+  const videoExts = ['.mp4', '.avi', '.mkv', '.mov', '.wmv', '.flv', '.webm', '.m4v', '.3gp'];
+  const audioExts = ['.mp3', '.wav', '.flac', '.aac', '.ogg', '.wma', '.m4a'];
+  const imageExts = ['.jpg', '.jpeg', '.png', '.gif', '.bmp', '.webp', '.heic', '.heif'];
+  const docExts = ['.pdf', '.doc', '.docx', '.xls', '.xlsx', '.ppt', '.pptx', '.txt', '.epub'];
+  const archiveExts = ['.zip', '.rar', '.7z', '.tar', '.gz', '.bz2'];
+
+  final lower = ext.toLowerCase();
+  if (videoExts.contains(lower)) return LargeFileType.video;
+  if (audioExts.contains(lower)) return LargeFileType.audio;
+  if (imageExts.contains(lower)) return LargeFileType.image;
+  if (docExts.contains(lower)) return LargeFileType.document;
+  if (archiveExts.contains(lower)) return LargeFileType.archive;
+  if (lower == '.apk') return LargeFileType.apk;
+  return LargeFileType.other;
+}
+
 extension LargeFileTypeExtension on LargeFileType {
   String get displayName {
     switch (this) {
@@ -50,22 +68,6 @@ extension LargeFileTypeExtension on LargeFileType {
     }
   }
 
-  static LargeFileType fromExtension(String ext) {
-    const videoExts = ['.mp4', '.avi', '.mkv', '.mov', '.wmv', '.flv', '.webm', '.m4v', '.3gp'];
-    const audioExts = ['.mp3', '.wav', '.flac', '.aac', '.ogg', '.wma', '.m4a'];
-    const imageExts = ['.jpg', '.jpeg', '.png', '.gif', '.bmp', '.webp', '.heic', '.heif'];
-    const docExts = ['.pdf', '.doc', '.docx', '.xls', '.xlsx', '.ppt', '.pptx', '.txt', '.epub'];
-    const archiveExts = ['.zip', '.rar', '.7z', '.tar', '.gz', '.bz2'];
-
-    final lower = ext.toLowerCase();
-    if (videoExts.contains(lower)) return LargeFileType.video;
-    if (audioExts.contains(lower)) return LargeFileType.audio;
-    if (imageExts.contains(lower)) return LargeFileType.image;
-    if (docExts.contains(lower)) return LargeFileType.document;
-    if (archiveExts.contains(lower)) return LargeFileType.archive;
-    if (lower == '.apk') return LargeFileType.apk;
-    return LargeFileType.other;
-  }
 }
 
 /// 大文件项

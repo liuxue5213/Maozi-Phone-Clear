@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'dart:math';
 
 /// 威胁等级
@@ -129,7 +131,7 @@ class AntivirusService {
   List<ThreatItem> _generateThreats() {
     return [
       ThreatItem(
-        name: '清理大师Pro',
+        appName: '清理大师Pro',
         packageName: 'com.cleaner.pro',
         description: '发现广告插件，可能在后台弹出恶意广告',
         level: ThreatLevel.medium,
@@ -138,7 +140,7 @@ class AntivirusService {
         isSelected: true,
       ),
       ThreatItem(
-        name: '免费WiFi',
+        appName: '免费WiFi',
         packageName: 'com.free.wifi',
         description: '过度请求位置权限，可能存在隐私泄露风险',
         level: ThreatLevel.low,
@@ -147,7 +149,7 @@ class AntivirusService {
         isSelected: true,
       ),
       ThreatItem(
-        name: 'GameHack',
+        appName: 'GameHack',
         packageName: 'com.game.hack',
         description: '检测到可疑代码注入行为',
         level: ThreatLevel.high,

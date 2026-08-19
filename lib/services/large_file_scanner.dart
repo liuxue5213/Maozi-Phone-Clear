@@ -151,7 +151,7 @@ class LargeFileScanner {
                 path: entity.path,
                 name: p.basename(entity.path),
                 sizeBytes: stat.size,
-                type: LargeFileType.fromExtension(ext),
+                type: getFileTypeFromExtension(ext),
                 lastModified: stat.modified,
                 extension: ext,
               ));
