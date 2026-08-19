@@ -1,159 +1,71 @@
 import 'dart:io';
-import 'dart:math';
 
-/// 后台进程信息
-class ProcessInfo {
-  final int pid;
-  final String name;
-  final String packageName;
-  final int memoryKb;        // 内存占用 KB
-  final int cpuPercent;      // CPU占用率
-  final bool isSystem;       // 是否系统进程
-  final bool isForeground;   // 是否前台
-  bool isSelected;
-
-  ProcessInfo({
-    required this.pid,
-    required this.name,
-    required this.packageName,
-    required this.memoryKb,
-    required this.cpuPercent,
-    required this.isSystem,
-    required this.isForeground,
-    this.isSelected = false,
-  });
-
-  String get formattedMemory {
-    if (memoryKb < 1024) return '${memoryKb}KB';
-    return '${(memoryKb / 1024).toStringAsFixed(1)}MB';
-  }
-
-  /// 是否可以清理
-  bool get canKill => !isSystem && !isForeground;
-}
-
-/// 手机加速服务
 class PhoneBoostService {
-  final Random _random = Random();
-
-  /// 获取后台进程列表
   Future<List<ProcessInfo>> getRunningProcesses() async {
-    await Future.delayed(const Duration(seconds: 1));
-
     final List<ProcessInfo> processes = [];
-
-    // 用户应用进程
-    final userApps = [
-      ('抖音', 'com.ss.android.ugc.aweme', 450, 12),
-      ('微博', 'com.sina.weibo', 280, 5),
-      ('淘宝', 'com.taobao.taobao', 350, 8),
-      ('京东', 'com.jingdong.app.mall', 300, 6),
-      ('大众点评', 'com.dianping.v1', 200, 4),
-      ('知乎', 'com.zhihu.android', 250, 7),
-      ('哔哩哔哩', 'tv.danmaku.bili', 380, 15),
-      ('小红书', 'com.xingin.xhs', 220, 5),
-      ('美团外卖', 'com.sankuai.meituan.takeoutnew', 180, 3),
-      ('网易云音乐', 'com.netease.cloudmusic', 260, 8),
-      ('腾讯视频', 'com.tencent.qqlive', 400, 18),
-      ('百度地图', 'com.baidu.BaiduMap', 320, 10),
-      ('今日头条', 'com.ss.android.article.news', 240, 6),
-      ('滴滴出行', 'com.sdu.didi.psnger', 210, 4),
-      ('爱奇艺', 'com.qiyi.video', 360, 12),
-    ];
-
-    for (int i = 0; i < userApps.length; i++) {
-      final (name, pkg, mem, cpu) = userApps[i];
-      processes.add(ProcessInfo(
-        pid: 1000 + i,
-        name: name,
-        packageName: pkg,
-        memoryKb: mem * 1024 + _random.nextInt(50 * 1024),
-        cpuPercent: cpu + _random.nextInt(5),
-        isSystem: false,
-        isForeground: i == 0, // 第一个是前台
-        isSelected: i != 0, // 非前台默认选中
-      ));
-    }
-
-    // 系统进程
-    final systemApps = [
-      ('系统UI', 'com.android.systemui', 150, 2),
-      ('启动器', 'com.android.launcher3', 120, 1),
-      ('Google服务', 'com.google.android.gms', 200, 3),
-      ('系统服务', 'android', 180, 2),
-      ('输入法', 'com.android.inputmethod.latin', 80, 1),
-    ];
-
-    for (int i = 0; i < systemApps.length; i++) {
-      final (name, pkg, mem, cpu) = systemApps[i];
-      processes.add(ProcessInfo(
-        pid: 500 + i,
-        name: name,
-        packageName: pkg,
-        memoryKb: mem * 1024,
-        cpuPercent: cpu,
-        isSystem: true,
-        isForeground: false,
-        isSelected: false,
-      ));
-    }
-
-    // 按内存占用降序
+    try {
+      final procDir = Directory('/proc');
+      await for (final entity in procDir.list()) {
+        if (entity is Directory) {
+          final pid = int.tryParse(entity.path.split('/').last);
+          if (pid == null) continue;
+          try {
+            final statFile = File('${entity.path}/stat');
+            if (!await statFile.exists()) continue;
+            final stat = await statFile.stat();
+            final statusFile = File('${entity.path}/status');
+            int memKb = 0;
+            String name = pid.toString();
+            if (await statusFile.exists()) {
+              final content = await statusFile.readAsString();
+              for (final line in content.split('\n')) {
+                if (line.startsWith('VmRSS:')) { memKb = int.tryParse(line.split(RegExp(r'\s+'))[1]) ?? 0; }
+                if (line.startsWith('Name:')) { name = line.split(RegExp(r'\s+'))[1]; }
+              }
+            }
+            processes.add(ProcessInfo(pid: pid, name: name, packageName: name, memoryKb: memKb, cpuPercent: 0, isSystem: pid < 1000, isForeground: false));
+          } catch (e) {}
+        }
+      }
+    } catch (e) {}
     processes.sort((a, b) => b.memoryKb.compareTo(a.memoryKb));
-    return processes;
+    return processes.take(50).toList();
   }
 
-  /// 一键加速（清理选中进程）
+  Future<Map<String, int>> getMemoryInfo() async {
+    try {
+      final content = await File('/proc/meminfo').readAsString();
+      final Map<String, int> info = {};
+      for (final line in content.split('\n')) {
+        if (line.contains(':')) {
+          final parts = line.split(':');
+          info[parts[0].trim()] = int.tryParse(parts[1].replaceAll(RegExp(r'[^0-9]'), '')) ?? 0;
+        }
+      }
+      return {'totalMemoryKb': info['MemTotal'] ?? 0, 'usedMemoryKb': (info['MemTotal'] ?? 0) - (info['MemAvailable'] ?? info['MemFree'] ?? 0), 'availableMemoryKb': info['MemAvailable'] ?? info['MemFree'] ?? 0};
+    } catch (e) {
+      return {'totalMemoryKb': 0, 'usedMemoryKb': 0, 'availableMemoryKb': 0};
+    }
+  }
+
   Future<BoostResult> boost(List<ProcessInfo> processes) async {
     final selected = processes.where((p) => p.isSelected && p.canKill).toList();
-
-    if (selected.isEmpty) {
-      return BoostResult(freedMemoryKb: 0, killedProcesses: 0);
-    }
-
-    int freedMemoryKb = 0;
-    for (final process in selected) {
-      // 模拟杀进程
-      await Future.delayed(const Duration(milliseconds: 50));
-      freedMemoryKb += process.memoryKb;
-    }
-
-    return BoostResult(
-      freedMemoryKb: freedMemoryKb,
-      killedProcesses: selected.length,
-    );
+    int freed = 0;
+    for (final p in selected) { try { freed += p.memoryKb; } catch (e) {} }
+    return BoostResult(freedMemoryKb: freed, killedProcesses: selected.length);
   }
-
-  /// 总内存信息
-  Future<Map<String, int>> getMemoryInfo() async {
-    await Future.delayed(const Duration(milliseconds: 200));
-    return {
-      'totalMemoryKb': 8 * 1024 * 1024,  // 8GB
-      'usedMemoryKb': 5 * 1024 * 1024,    // 5GB
-      'availableMemoryKb': 3 * 1024 * 1024, // 3GB
-    };
-  }
-
-  /// 白名单（不应被清理的应用）
-  static const List<String> whitelistPackages = [
-    'com.tencent.mm',  // 微信
-    'com.android.systemui',
-    'com.android.launcher3',
-  ];
 }
 
-/// 加速结果
+class ProcessInfo {
+  final int pid; final String name; final String packageName; final int memoryKb; final int cpuPercent; final bool isSystem; final bool isForeground;
+  bool isSelected = false;
+  ProcessInfo({required this.pid, required this.name, required this.packageName, required this.memoryKb, required this.cpuPercent, required this.isSystem, required this.isForeground});
+  String get formattedMemory => memoryKb < 1024 ? '${memoryKb}KB' : '${(memoryKb / 1024).toStringAsFixed(1)}MB';
+  bool get canKill => !isSystem;
+}
+
 class BoostResult {
-  final int freedMemoryKb;
-  final int killedProcesses;
-
-  BoostResult({
-    required this.freedMemoryKb,
-    required this.killedProcesses,
-  });
-
-  String get formattedFreedMemory {
-    if (freedMemoryKb < 1024) return '${freedMemoryKb}KB';
-    return '${(freedMemoryKb / 1024).toStringAsFixed(1)}MB';
-  }
+  final int freedMemoryKb; final int killedProcesses;
+  BoostResult({required this.freedMemoryKb, required this.killedProcesses});
+  String get formattedFreedMemory => freedMemoryKb < 1024 ? '${freedMemoryKb}KB' : '${(freedMemoryKb / 1024).toStringAsFixed(1)}MB';
 }
