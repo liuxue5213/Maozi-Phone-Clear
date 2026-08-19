@@ -174,7 +174,7 @@ class _PhoneBoostScreenState extends State<PhoneBoostScreen>
   Widget _buildMemoryCard() {
     final totalKb = _memoryInfo?['totalMemoryKb'] ?? 1;
     final usedKb = _memoryInfo?['usedMemoryKb'] ?? 0;
-    final percent = usedKb / totalKb;
+    final percent = totalKb > 0 ? (usedKb / totalKb).clamp(0.0, 1.0) : 0.0;
 
     return Container(
       margin: const EdgeInsets.all(16),

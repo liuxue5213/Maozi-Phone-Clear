@@ -24,7 +24,7 @@ class ImageScanner {
               final cat = dirPath.contains('Screenshot') ? ImageCategory.screenshot : ImageCategory.similar;
               result.putIfAbsent(cat, () => []).add(ImageFileItem(
                 path: entity.path, name: entity.path.split('/').last, sizeBytes: stat.size,
-                createdDate: stat.modified, width: 0, height: 0, category: cat,
+                createdDate: stat.modified, width: 0, height: 0, category: cat, // 注意：真实实现需要 image_size_getter 包读取尺寸
               ));
             }
           } catch (e) {}
