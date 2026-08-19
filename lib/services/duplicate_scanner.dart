@@ -2,9 +2,9 @@ import 'dart:io';
 import 'package:crypto/crypto.dart';
 import '../models/duplicate_file.dart';
 
-/// 重复文件扫描服务 - 真实文件扫描
+/// 重复文件扫描服务 - 基于 MD5 全文哈希的真实重复检测
 class DuplicateScanner {
-  /// 扫描重复文件
+  /// 扫描重复文件（基于内容哈希）
   Future<List<DuplicateGroup>> scanDuplicates() async {
     final Map<String, List<DuplicateFile>> sizeGroups = {};
     final dirs = [
@@ -15,7 +15,7 @@ class DuplicateScanner {
       '/storage/emulated/0/Movies',
     ];
 
-    // 按大小分组
+    // 第一步：按大小分组
     for (final dirPath in dirs) {
       final dir = Directory(dirPath);
       if (!await dir.exists()) continue;
@@ -24,16 +24,31 @@ class DuplicateScanner {
       } catch (e) { /* skip */ }
     }
 
-    final List<DuplicateGroup> result = [];
-    // 对相同大小的文件计算哈希
+    // 第二步：对相同大小的文件计算 MD5 哈希，按哈希分组
+    final Map<String, List<DuplicateFile>> hashGroups = {};
     for (final entry in sizeGroups.entries) {
-      if (entry.value.length < 2) continue;
-      final hash = await _calculateHash(entry.value.first.path);
-      result.add(DuplicateGroup(
-        hash: hash,
-        fileSize: int.parse(entry.key),
-        files: entry.value,
-      ));
+      if (entry.value.length < 2) continue; // 只有1个文件不算重复
+      
+      for (final file in entry.value) {
+        try {
+          final hash = await _calculateHash(file.path);
+          hashGroups.putIfAbsent(hash, () => []).add(file);
+        } catch (e) {
+          // 跳过无法读取的文件
+        }
+      }
+    }
+
+    // 第三步：构建结果（只保留真正重复的组）
+    final List<DuplicateGroup> result = [];
+    for (final entry in hashGroups.entries) {
+      if (entry.value.length >= 2) {
+        result.add(DuplicateGroup(
+          hash: entry.key,
+          fileSize: entry.value.first.sizeBytes,
+          files: entry.value,
+        ));
+      }
     }
 
     result.sort((a, b) => b.wastedBytes.compareTo(a.wastedBytes));
@@ -46,7 +61,7 @@ class DuplicateScanner {
       if (entity is File) {
         try {
           final stat = await entity.stat();
-          if (stat.size < 10240) continue; // 跳过小文件
+          if (stat.size < 10240) continue; // 跳过 <10KB 小文件
           final key = stat.size.toString();
           groups.putIfAbsent(key, () => []).add(
             DuplicateFile(path: entity.path, name: entity.path.split('/').last, sizeBytes: stat.size, lastModified: stat.modified),

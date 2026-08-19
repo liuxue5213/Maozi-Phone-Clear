@@ -3,40 +3,45 @@ import 'dart:io';
 class AppManagerService {
   Future<List<AppInfo>> scanApps() async {
     final List<AppInfo> apps = [];
-    try {
-      final result = await Process.run('pm', ['list', '-f', '-3']); // 第三方应用
-      final lines = result.stdout.toString().split('\n');
-      for (final line in lines) {
-        if (!line.startsWith('package:')) continue;
-        final parts = line.split('=');
-        if (parts.length < 2) continue;
-        final path = parts[0].replaceFirst('package:', '');
-        final pkg = parts[1].trim();
-        apps.add(AppInfo(packageName: pkg, name: pkg.split('.').last, version: '1.0.0', sizeBytes: 0, cacheBytes: 0, dataBytes: 0, installTime: DateTime.now(), lastUsed: DateTime.now(), type: AppType.user));
+    // 扫描已安装应用的缓存目录
+    final dataDir = Directory('/storage/emulated/0/Android/data');
+    if (!await dataDir.exists()) return apps;
+    
+    await for (final entity in dataDir.list()) {
+      if (entity is Directory) {
+        final pkg = entity.path.split('/').last;
+        int totalSize = 0;
+        await for (final f in entity.list(recursive: true, followLinks: false)) {
+          if (f is File) { try { totalSize += (await f.stat()).size; } catch (_) {} }
+        }
+        apps.add(AppInfo(packageName: pkg, name: pkg.split('.').last, version: '1.0.0', sizeBytes: totalSize, cacheBytes: totalSize, dataBytes: 0, installTime: DateTime.now(), lastUsed: DateTime.now(), type: AppType.user));
       }
-    } catch (_) {}
+    }
     return apps;
   }
 
   Future<bool> uninstallApp(AppInfo app) async {
-    try {
-      final result = await Process.run('pm', ['uninstall', app.packageName]);
-      return result.exitCode == 0;
-    } catch (_) { return false; }
+    // 卸载需要系统权限，普通应用无法执行
+    return false;
   }
 
   Future<int> batchUninstall(List<AppInfo> apps) async {
-    int freed = 0;
-    for (final app in apps) {
-      if (await uninstallApp(app)) freed += app.totalSizeBytes;
-    }
-    return freed;
+    // 卸载需要系统权限，普通应用无法执行
+    return 0;
   }
 
   Future<int> clearAppCache(List<AppInfo> apps) async {
     int freed = 0;
     for (final app in apps) {
-      freed += app.cacheBytes;
+      try {
+        final cacheDir = Directory('/storage/emulated/0/Android/data/${app.packageName}/cache');
+        if (await cacheDir.exists()) {
+          await for (final f in cacheDir.list(recursive: true, followLinks: false)) {
+            if (f is File) { try { await f.delete(); } catch (_) {} }
+          }
+        }
+        freed += app.cacheBytes;
+      } catch (_) {}
     }
     return freed;
   }

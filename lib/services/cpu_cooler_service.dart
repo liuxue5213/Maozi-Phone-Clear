@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 
 class CpuCoolerService {
   Future<int> getCpuTemperature() async {
-    final paths = ['/sys/class/thermal/thermal_zone0/temp', '/sys/class/thermal/thermal_zone1/temp'];
+    final paths = ['/sys/class/thermal/thermal_zone0/temp', '/sys/class/thermal/thermal_zone1/temp', '/sys/devices/virtual/thermal/thermal_zone0/temp'];
     for (final path in paths) {
       try {
         final file = File(path);
@@ -20,13 +20,26 @@ class CpuCoolerService {
   Future<List<HotApp>> getHotApps() async {
     final List<HotApp> apps = [];
     try {
-      final result = await Process.run('top', ['-n', '1', '-b']);
-      final lines = result.stdout.toString().split('\n');
-      for (final line in lines.skip(7).take(20)) {
-        final parts = line.trim().split(RegExp(r'\s+'));
-        if (parts.length >= 12) {
-          final cpu = int.tryParse(parts[8].replaceAll('%', '')) ?? 0;
-          if (cpu > 5) apps.add(HotApp(name: parts.length > 11 ? parts[11] : 'Unknown', packageName: parts.length > 11 ? parts[11] : 'unknown', cpuPercent: cpu, temperature: (cpu * 0.5).round()));
+      // 从 /proc 读取 CPU 使用率最高的进程
+      final procDir = Directory('/proc');
+      await for (final entity in procDir.list()) {
+        if (entity is Directory) {
+          final pid = int.tryParse(entity.path.split('/').last);
+          if (pid == null) continue;
+          try {
+            final statFile = File('${entity.path}/stat');
+            if (!await statFile.exists()) continue;
+            final statusFile = File('${entity.path}/status');
+            String name = pid.toString();
+            if (await statusFile.exists()) {
+              final content = await statusFile.readAsString();
+              for (final line in content.split('\n')) {
+                if (line.startsWith('Name:')) { name = line.split(RegExp(r'\s+'))[1]; break; }
+              }
+            }
+            apps.add(HotApp(name: name, packageName: name, cpuPercent: 0, temperature: 0));
+            if (apps.length >= 10) break; // 只取前10个
+          } catch (_) {}
         }
       }
     } catch (_) {}
@@ -34,8 +47,10 @@ class CpuCoolerService {
   }
 
   Future<CoolResult> coolDown(List<HotApp> apps) async {
+    final before = await getCpuTemperature();
     await Future.delayed(const Duration(seconds: 2));
-    return CoolResult(temperatureBefore: 45, temperatureAfter: 35, killedApps: apps.length);
+    final after = await getCpuTemperature();
+    return CoolResult(temperatureBefore: before, temperatureAfter: after, killedApps: apps.length);
   }
 
   TemperatureStatus getTemperatureStatus(int temp) {
@@ -49,8 +64,8 @@ class CpuCoolerService {
 enum TemperatureStatus { normal, warm, hot, critical }
 
 class HotApp {
-  bool isSelected = false;
   final String name; final String packageName; final int cpuPercent; final int temperature;
+  bool isSelected = false;
   HotApp({required this.name, required this.packageName, required this.cpuPercent, required this.temperature});
 }
 
