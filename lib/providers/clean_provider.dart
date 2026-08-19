@@ -27,6 +27,7 @@ class CleanProvider extends ChangeNotifier {
   List<String> _scanErrors = [];
   List<String> _scannedDirs = [];
   int _totalFilesScanned = 0;
+  String _scanResultMessage = '';
 
   // Getters
   AppState get state => _state;
@@ -38,6 +39,7 @@ class CleanProvider extends ChangeNotifier {
   List<String> get scanErrors => _scanErrors;
   List<String> get scannedDirs => _scannedDirs;
   int get totalFilesScanned => _totalFilesScanned;
+  String get scanResultMessage => _scanResultMessage;
 
   /// 获取所有待勾选项
   List<JunkItem> get allItems {
@@ -89,6 +91,7 @@ class CleanProvider extends ChangeNotifier {
     _scanErrors = result.errors;
     _scannedDirs = result.scannedDirs;
     _totalFilesScanned = result.totalFilesScanned;
+    _scanResultMessage = result.message;
 
     _state = AppState.selecting;
     

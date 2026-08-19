@@ -55,9 +55,10 @@ class SelectScreen extends StatelessWidget {
             color: Color(0xFFBDBDBD),
           ),
           const SizedBox(height: 16),
-          const Text(
-            '未发现垃圾文件',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+          Text(
+            provider.scanResultMessage.isEmpty ? '未发现垃圾文件' : provider.scanResultMessage,
+            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+            textAlign: TextAlign.center,
           ),
           const SizedBox(height: 8),
           
@@ -82,10 +83,15 @@ class SelectScreen extends StatelessWidget {
                     ],
                   ),
                   const SizedBox(height: 8),
-                  ...provider.scanErrors.map((e) => Padding(
+                  ...provider.scanErrors.take(3).map((e) => Padding(
                     padding: const EdgeInsets.only(left: 28, bottom: 4),
                     child: Text('• $e', style: TextStyle(fontSize: 12, color: Colors.orange[800])),
                   )),
+                  if (provider.scanErrors.length > 3)
+                    Padding(
+                      padding: const EdgeInsets.only(left: 28),
+                      child: Text('...还有 ${provider.scanErrors.length - 3} 个', style: TextStyle(fontSize: 11, color: Colors.grey)),
+                    ),
                 ],
               ),
             ),
@@ -105,7 +111,7 @@ class SelectScreen extends StatelessWidget {
                 children: [
                   const Text('已扫描目录：', style: TextStyle(fontWeight: FontWeight.w600, color: Colors.grey)),
                   const SizedBox(height: 8),
-                  ...provider.scannedDirs.map((d) => Padding(
+                  ...provider.scannedDirs.take(5).map((d) => Padding(
                     padding: const EdgeInsets.only(left: 8, bottom: 4),
                     child: Text('✓ $d', style: TextStyle(fontSize: 11, color: Colors.grey[600])),
                   )),
@@ -115,9 +121,9 @@ class SelectScreen extends StatelessWidget {
           ],
           
           const SizedBox(height: 16),
-          const Text(
-            '请确保已授予"允许访问所有文件"权限',
-            style: TextStyle(fontSize: 13, color: Colors.grey),
+          Text(
+            'Android 11+ 限制了应用访问系统目录\n只能扫描图片、视频、下载等公开目录',
+            style: TextStyle(fontSize: 12, color: Colors.grey[500]),
             textAlign: TextAlign.center,
           ),
         ],
